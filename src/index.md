@@ -93,21 +93,21 @@ Create folder `api/controllers` and put a file `view.js` in there:
 
 ```javascript
 module.exports = {
-read: function( req, res ) {
-res.send( req.indexed );
-},
-readWithId: function( req, res ) {
-res.send( req.params );
-},
-bodyPosted: function( req, res ) {
-res.send( req.body );
-},
-bodyNormal: function( req, res ) {
-res.send( "normal request" );
-},
-create: function( req, res ) {
-res.send( req.promised );
-}
+	read: function( req, res ) {
+		res.send( req.indexed );
+	},
+	readWithId: function( req, res ) {
+		res.send( req.params );
+	},
+	bodyPosted: function( req, res ) {
+		res.send( req.body );
+	},
+	bodyNormal: function( req, res ) {
+		res.send( "normal request" );
+	},
+	create: function( req, res ) {
+		res.send( req.promised );
+	}
 };
 ```
 
@@ -115,14 +115,14 @@ Next add folder `api/policies` and put a file `filter.js` in there:
 
 ```javascript
 module.exports = {
-index: function( req, res, next ) {
-req.indexed = "yeah!";
-next();
-},
-promised: function( req, res ) {
-req.promised = "yup!";
-return new Promise( function( resolve ) { setTimeout( resolve, 1000 ); } );
-},
+	index: function( req, res, next ) {
+		req.indexed = "yeah!";
+		next();
+	},
+	promised: function( req, res ) {
+		req.promised = "yup!";
+		return new Promise( function( resolve ) { setTimeout( resolve, 1000 ); } );
+	},
 };
 ```
 
@@ -130,13 +130,13 @@ finally add folder `config` and put a file `routes.js` in there:
 
 ```javascript
 module.exports = {
-"/view/read": "ViewController.read",
-"/view/read/:id": "ViewController.readWithId",
-"/view/body": "ViewController.bodyNormal",
-"POST /view/body": "ViewController.bodyPosted",
-"/view/create": "ViewController.create",
-"/view/create/:name": "ViewController.create",
-"/view/create(/:id)?": "ViewController.create",
+	"/view/read": "ViewController.read",
+	"/view/read/:id": "ViewController.readWithId",
+	"/view/body": "ViewController.bodyNormal",
+	"POST /view/body": "ViewController.bodyPosted",
+	"/view/create": "ViewController.create",
+	"/view/create/:name": "ViewController.create",
+	"/view/create(/:id)?": "ViewController.create",
 };
 ```
 
@@ -144,8 +144,8 @@ Put another file `policies.js` into the same folder:
 
 ```javascript
 module.exports = {
-"/view/read": "FilterPolicy",
-"/view/create": "FilterPolicy.promised",
+	"/view/read": "FilterPolicy",
+	"/view/create": "FilterPolicy.promised",
 };
 ```
 
@@ -171,3 +171,4 @@ reverse order compared to startup phase.
 we consider to keep the core nearly as simple as now and provide several
 extension e.g. for enabling hitchy to support development of angular-based
 client.
+

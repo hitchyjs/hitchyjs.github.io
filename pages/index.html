@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<link href="https://fonts.googleapis.com/css?family=Archivo+Black|Dosis|Fira+Sans" rel="stylesheet">
-	<link href="assets/style.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Archivo+Black|Dosis" rel="stylesheet">
+	<link href="../assets/style.css" rel="stylesheet">
 	<title>hitchyjs</title>
 </head>
 <body>
 <div id="wrapper">
 	<header>
 		<div class="inner">
-			<h1>HitchyJS</h1>
+			<h1><a href="/">HitchyJS</a></h1>
 		</div>
 	</header>
 	<article>
@@ -88,50 +88,50 @@ and optionally include policies. However, since this project is empty, any
 request results in a 404 error.</p>
 <p>Create folder <code>api/controllers</code> and put a file <code>view.js</code> in there:</p>
 <pre><code class="lang-javascript">module.exports = {
-read: function( req, res ) {
-res.send( req.indexed );
-},
-readWithId: function( req, res ) {
-res.send( req.params );
-},
-bodyPosted: function( req, res ) {
-res.send( req.body );
-},
-bodyNormal: function( req, res ) {
-res.send( &quot;normal request&quot; );
-},
-create: function( req, res ) {
-res.send( req.promised );
-}
+    read: function( req, res ) {
+        res.send( req.indexed );
+    },
+    readWithId: function( req, res ) {
+        res.send( req.params );
+    },
+    bodyPosted: function( req, res ) {
+        res.send( req.body );
+    },
+    bodyNormal: function( req, res ) {
+        res.send( &quot;normal request&quot; );
+    },
+    create: function( req, res ) {
+        res.send( req.promised );
+    }
 };
 </code></pre>
 <p>Next add folder <code>api/policies</code> and put a file <code>filter.js</code> in there:</p>
 <pre><code class="lang-javascript">module.exports = {
-index: function( req, res, next ) {
-req.indexed = &quot;yeah!&quot;;
-next();
-},
-promised: function( req, res ) {
-req.promised = &quot;yup!&quot;;
-return new Promise( function( resolve ) { setTimeout( resolve, 1000 ); } );
-},
+    index: function( req, res, next ) {
+        req.indexed = &quot;yeah!&quot;;
+        next();
+    },
+    promised: function( req, res ) {
+        req.promised = &quot;yup!&quot;;
+        return new Promise( function( resolve ) { setTimeout( resolve, 1000 ); } );
+    },
 };
 </code></pre>
 <p>finally add folder <code>config</code> and put a file <code>routes.js</code> in there:</p>
 <pre><code class="lang-javascript">module.exports = {
-&quot;/view/read&quot;: &quot;ViewController.read&quot;,
-&quot;/view/read/:id&quot;: &quot;ViewController.readWithId&quot;,
-&quot;/view/body&quot;: &quot;ViewController.bodyNormal&quot;,
-&quot;POST /view/body&quot;: &quot;ViewController.bodyPosted&quot;,
-&quot;/view/create&quot;: &quot;ViewController.create&quot;,
-&quot;/view/create/:name&quot;: &quot;ViewController.create&quot;,
-&quot;/view/create(/:id)?&quot;: &quot;ViewController.create&quot;,
+    &quot;/view/read&quot;: &quot;ViewController.read&quot;,
+    &quot;/view/read/:id&quot;: &quot;ViewController.readWithId&quot;,
+    &quot;/view/body&quot;: &quot;ViewController.bodyNormal&quot;,
+    &quot;POST /view/body&quot;: &quot;ViewController.bodyPosted&quot;,
+    &quot;/view/create&quot;: &quot;ViewController.create&quot;,
+    &quot;/view/create/:name&quot;: &quot;ViewController.create&quot;,
+    &quot;/view/create(/:id)?&quot;: &quot;ViewController.create&quot;,
 };
 </code></pre>
 <p>Put another file <code>policies.js</code> into the same folder:</p>
 <pre><code class="lang-javascript">module.exports = {
-&quot;/view/read&quot;: &quot;FilterPolicy&quot;,
-&quot;/view/create&quot;: &quot;FilterPolicy.promised&quot;,
+    &quot;/view/read&quot;: &quot;FilterPolicy&quot;,
+    &quot;/view/create&quot;: &quot;FilterPolicy.promised&quot;,
 };
 </code></pre>
 <p>Finally restart hitchy server and try requesting <code>http://127.0.0.1:3000/view/read</code>
@@ -161,7 +161,8 @@ client.</li>
 	</article>
 	<footer>
 		<div class="inner">
-			&copy; 2017 <a href="http://cepharum.de/">cepharum GmbH</a>
+			<label>&copy; 2017</label> <a href="http://cepharum.de/">cepharum GmbH</a>
+			<a href="license.html">License</a>
 		</div>
 	</footer>
 </div>

@@ -32,6 +32,11 @@ body, p, h1, h2, h3, h4, h5, h6, form, table, ul, ol, li, blockquote {
 		.inner {
 			@include pagesize;
 		}
+
+		a {
+			color: white;
+			text-decoration: none;
+		}
 	}
 
 	> footer {
