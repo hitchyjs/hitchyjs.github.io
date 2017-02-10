@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link href="https://fonts.googleapis.com/css?family=Archivo+Black|Dosis|Fira+Sans" rel="stylesheet">
+	<link href="assets/style.css" rel="stylesheet">
+	<title>hitchyjs</title>
+</head>
+<body>
+<div id="wrapper">
+	<header>
+		<div class="inner">
+			<h1>HitchyJS</h1>
+		</div>
+	</header>
+	<article>
+		<h2 id="motivation">Motivation</h2>
+<p>hitchy is yet another web application framework. After trying all kinds of web
+application frameworks our team eventually ended up with using sailsjs to
+develop new software for the web. Sails includes data storage API, knows how to
+define and manage data models, using controllers etc. All that stuff is instantly
+available in a freshly created sailsjs application project.</p>
+<p>But then we started to check the code of sailsjs and felt - let&#39;s say - grounded.</p>
+<p>Parts of code in sailsjs obviously has been written by someone who doesn&#39;t know
+Javascript very well. And since we will be responsible for code we develop for
+our customers we always had some headaches when thinking about those flaws in
+code. We even tried to do revisions and provide them upstream, but one of our
+first pull requests is still pending. In addition we consider sailsjs&#39; paradigm
+to promote several APIs globally bad practice. Because of all this sailsjs is
+currently dropping off the table.</p>
+<p>After that we evaluated different options for replacing sailsjs. trailsjs does
+not look mature enough to start coding custom applications. In addition it
+suffers from trying to be too flexible reducing its integrated set of features
+to a least common denominator when it comes to supported backend systems competing
+with each other. On behalf of database backend discussions on issue tracking
+revealed some limitations by design when it comes to using benefits provided by
+waterline-orm due to using API suitable to interact with knex or other backends
+as well. That&#39;s bad, sorry.</p>
+<p>At first glance StrongLoop was a very promising framework, but finally we dropped
+it either for being much too bloated for projects requiring lean and fast server
+logic.</p>
+<p>Any recently tested framework felt like a Lego system due to sticking with a
+common pattern of linking tons of packages and modules together not caring for
+how good or bad either package is implemented. Even though we basically feel
+committed to the opportunities provided by npm this dependency hell always tends
+to become PITA after some while when some dependencies start upgrading to new
+majors while others don&#39;t. Using lots of modules also has an increasing impact
+on performance and we actually for performance.</p>
+<p>Last but not least we somewhat always tend to start creating our own software in
+the end when there is no totally satisfying solution in field, eventually. So,
+as of early 2017 we ended up with starting our own framework to pick all the
+goodies provided by previous frameworks we&#39;ve been working with and integrating
+some more benefits.</p>
+<h2 id="so-what-is-it-">So, what is it?</h2>
+<p>hitchy is designed to basically do the backend job in web applications, that is
+storing data on servers, probably helping with kickstarting client applications
+working with AngularJS or similar. It&#39;s intended to stay open for extensions,
+but without those headaches that come with sailsjs when it comes to revising
+models and overloading controllers provided by some used extension.</p>
+<p>Event though hitchy is capable of running just with node&#39;s integrated HTTP
+server, it is basically designed to work as expressjs compatible middleware as
+well. That&#39;s why we decided to call it <code>hitchy</code> ... by using injectors projects
+might be injected into other nodejs web application frameworks as well.</p>
+<p>As mentioned we also worry about performance and starting up a sailsjs project
+quickly becomes a lasting process. Code in hitchy isn&#39;t always quite as clean as
+desired but that&#39;s mostly due to improving performance by preventing use of
+callbacks as much as possible. hitchy also relies on more recent releases of
+nodejs and its using native Promises to support on-demand asynchronour
+processing most of the time.</p>
+<h2 id="and-how-does-it-work-">And how does it work?</h2>
+<p>Here comes a quickstart for current releases of hitchy.</p>
+<blockquote>
+<p><em>Since we&#39;ve started to develop just days ago you definitely may consider this
+framework to be in alpha stage currently.</em> This means that any tutorial given
+here might be broken in future releases.</p>
+</blockquote>
+<p>Open your favourite CLI and start with these commands:</p>
+<pre><code>mkdir myproject
+cd myproject
+npm init
+npm install --save hitchy
+hitchy start
+</code></pre><p>This will generate an empty project folder with hitchy as dependency. The last
+command is firing up hitchy&#39;s internal server relying on node&#39;s HTTP server,
+only.</p>
+<p>As of v0.0.5 hitchy has been tested to properly route requests to controllers
+and optionally include policies. However, since this project is empty, any
+request results in a 404 error.</p>
+<p>Create folder <code>api/controllers</code> and put a file <code>view.js</code> in there:</p>
+<pre><code class="lang-javascript">module.exports = {
+read: function( req, res ) {
+res.send( req.indexed );
+},
+readWithId: function( req, res ) {
+res.send( req.params );
+},
+bodyPosted: function( req, res ) {
+res.send( req.body );
+},
+bodyNormal: function( req, res ) {
+res.send( &quot;normal request&quot; );
+},
+create: function( req, res ) {
+res.send( req.promised );
+}
+};
+</code></pre>
+<p>Next add folder <code>api/policies</code> and put a file <code>filter.js</code> in there:</p>
+<pre><code class="lang-javascript">module.exports = {
+index: function( req, res, next ) {
+req.indexed = &quot;yeah!&quot;;
+next();
+},
+promised: function( req, res ) {
+req.promised = &quot;yup!&quot;;
+return new Promise( function( resolve ) { setTimeout( resolve, 1000 ); } );
+},
+};
+</code></pre>
+<p>finally add folder <code>config</code> and put a file <code>routes.js</code> in there:</p>
+<pre><code class="lang-javascript">module.exports = {
+&quot;/view/read&quot;: &quot;ViewController.read&quot;,
+&quot;/view/read/:id&quot;: &quot;ViewController.readWithId&quot;,
+&quot;/view/body&quot;: &quot;ViewController.bodyNormal&quot;,
+&quot;POST /view/body&quot;: &quot;ViewController.bodyPosted&quot;,
+&quot;/view/create&quot;: &quot;ViewController.create&quot;,
+&quot;/view/create/:name&quot;: &quot;ViewController.create&quot;,
+&quot;/view/create(/:id)?&quot;: &quot;ViewController.create&quot;,
+};
+</code></pre>
+<p>Put another file <code>policies.js</code> into the same folder:</p>
+<pre><code class="lang-javascript">module.exports = {
+&quot;/view/read&quot;: &quot;FilterPolicy&quot;,
+&quot;/view/create&quot;: &quot;FilterPolicy.promised&quot;,
+};
+</code></pre>
+<p>Finally restart hitchy server and try requesting <code>http://127.0.0.1:3000/view/read</code>
+or similar.</p>
+<blockquote>
+<p>hitchy CLI-based server script includes proper support for catching Ctrl+C
+for properly shutting server down. This includes watching all active connections
+and turning off <em>keep-alive</em> while reducing timeout to prevent server from
+taking tons of time to shutdown.</p>
+</blockquote>
+<h2 id="more-goodies-to-mention">More goodies to mention</h2>
+<ul>
+<li>All extensions and components distributed with core are using an equivalent
+approach for deciding order of loading, configuring and initializing either
+component. Any module might ask for dependencies. This way any bootstrap stage
+supported by a component is invoked after related stage of its dependencies have
+passed before. By using Promises either component may delay its processing in
+any stage if required.</li>
+<li>On shutting down hitchy all components are enabled to properly shutdown using
+reverse order compared to startup phase.</li>
+<li>By intention it&#39;s footprint on dependencies is quite low, currently. Actually
+we consider to keep the core nearly as simple as now and provide several
+extension e.g. for enabling hitchy to support development of angular-based
+client.</li>
+</ul>
+
+	</article>
+	<footer>
+		<div class="inner">
+			&copy; 2017 <a href="http://cepharum.de/">cepharum GmbH</a>
+		</div>
+	</footer>
+</div>
+</body>
+</html>

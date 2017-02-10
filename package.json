@@ -1,0 +1,25 @@
+{
+  "name": "hitchyjs.github.io",
+  "version": "0.0.1",
+  "description": "documentation site for hitchyjs",
+  "main": "build.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hitchyjs/hitchyjs.github.io.git"
+  },
+  "author": "cepharum GmbH",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hitchyjs/hitchyjs.github.io/issues"
+  },
+  "homepage": "https://github.com/hitchyjs/hitchyjs.github.io#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cli": "^1.2.2",
+    "gulp-markdown": "^1.2.0",
+    "gulp-wrap": "^0.13.0"
+  }
+}
