@@ -49,6 +49,11 @@ body, p, h1, h2, h3, h4, h5, h6, form, table, ul, ol, li, blockquote {
 		text-align: center;
 		font-size: 71%;
 		margin: 2em 0;
+
+		a + a {
+			margin-left: 1em;
+			display: inline-block;
+		}
 	}
 
 	> article {
@@ -119,4 +124,10 @@ blockquote {
 li {
 	padding-left: 1em;
 	margin-left: 2em;
+}
+
+a {
+	text-decoration: none;
+	font-weight: bold;
+	color: $mainColor;
 }
