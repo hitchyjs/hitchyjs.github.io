@@ -32,8 +32,7 @@ gulp.task( "default", function() {
 	return gulp.src( "src/**/*.md", { base: "src" } )
 		.pipe( require( "gulp-markdown" )( {
 			gfm: true,
-			tables: true,
-			breaks: true
+			tables: true
 		} ) )
 		.pipe( require( "gulp-wrap" )( {
 			src: "templates/.page.html"
