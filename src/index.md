@@ -1,3 +1,6 @@
+* [Get it from GitHub](https://github.com/hitchyjs/core)
+* [Install with npm](https://www.npmjs.com/package/hitchy)
+
 ## Motivation
 
 hitchy is yet another web application framework. After trying all kinds of web
