@@ -30,7 +30,11 @@ const gulp = require( "gulp" );
 
 gulp.task( "default", function() {
 	return gulp.src( "src/**/*.md", { base: "src" } )
-		.pipe( require( "gulp-markdown" )() )
+		.pipe( require( "gulp-markdown" )( {
+			gfm: true,
+			tables: true,
+			breaks: true
+		} ) )
 		.pipe( require( "gulp-wrap" )( {
 			src: "templates/.page.html"
 		} ) )
