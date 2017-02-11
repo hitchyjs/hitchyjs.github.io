@@ -1,4 +1,6 @@
-* [Get it from GitHub](https://github.com/hitchyjs/core)
+## How To Get It 
+
+* [Clone on GitHub](https://github.com/hitchyjs/core)
 * [Install with npm](https://www.npmjs.com/package/hitchy)
 
 ## Motivation
