@@ -1,4 +1,8 @@
 $mainColor: rgb(60,0,120);
+$alt1Color: rgb(97,6,5);
+$alt2Color: rgb(120,72,6);
+$alt3Color: rgb(5,55,97);
+$alt4Color: rgb(0,120,46);
 
 @mixin box {
 	position: relative;
@@ -13,7 +17,7 @@ $mainColor: rgb(60,0,120);
 }
 
 body {
-	font: normal 12pt/1.3 "Fira Sans", sans-serif;
+	font: normal 12pt/1.5 "Fira Sans", sans-serif;
 	background: lighten($mainColor,74%);
 	color: darken($mainColor,10%);
 }
@@ -127,7 +131,10 @@ li {
 }
 
 a {
-	text-decoration: none;
-	font-weight: bold;
-	color: $mainColor;
+	text-decoration: underline;
+	color: lighten( $alt1Color, 20% );
+
+	footer & {
+		text-decoration: none;
+	}
 }
