@@ -3,38 +3,7 @@
 
 ### Introduction
 
-Bootstrap is the way is detecting and collecting all required information to properly handle incoming requests later. This process runs on starting up hitchy-based application and must be completed without any error.
-
-
-#### Hitchy's Common Module Pattern
-
-Hitchy repeatedly supports particular pattern for providing additional data and/or functionality. This pattern is available for injecting components into your hitchy setup, for providing custom configuration in your project's configuration related to hitchy and in all models, controllers, policies and services of your project and its extending components.
-
-In either case any such _module_ might provide requested data as such. However, the more beneficial way is to export a single function that is expected to return that requested data. You are advised to stick with the latter technique to gain full access on API and options used to start/inject hitchy. By exporting function component you might even return promise to provide requested data with delay. For example, discovery process or compilation of project's configuration is delayed until some returned promise is resolved with eventually provided information.
-
-A short example of hitchy's common module pattern looks like this:
-
-```javascript
-/**
- * Provides implementation for second stage of bootstrapping hitchy instance.
- *
- * @this HitchyAPI
- * @param {HitchyOptions} options
- * @returns {function(modules:HitchyComponentHandle[]):Promise.<HitchyComponentHandle[]>}
- */
-module.exports = function( options ) {
-	let api = this;
-	
-	return {
-		// here comes your actual data 
-		configure: function() {
-			
-		}
-	};
-};
-```
-
-By following this pattern access on hitchy's API is provided through closure variable `api` here. This includes all found configuration, any model or controller etc. Thus, when documentation to refers some variable or data available as `api.foo.bar` this is referring to the access granted here. In addition `options` is available to access configuration provided by application or runtime environment injecting hitchy. E.g. on using hitchy's internal server this includes any custom command line option.
+On startup hitchy is detecting and collecting all required information to properly handle incoming requests later. This stage is called _bootstrap_ and must be completed without any error. This page provides in-depth explanation of bootstrap process.
 
 
 ### Triangulation
@@ -43,8 +12,8 @@ First of all hitchy is trying to detect its runtime environment detecting all ba
 
 As a result of triangulation hitchy knows two folders:
 
-* `<hitchyFolder>` is the folder containing hitchyjs framework installation. This information is available as `options.hitchyFolder` on complying with common modules pattern.
-* `<projectFolder>` is the folder containing custom implementation relying on hitchyjs as well as a custom set of extending components (a.k.a. extensions). On using common modules pattern this pathname is available via `options.projectFolder`.
+* `<hitchyFolder>` is the folder containing hitchyjs framework installation. This information is available as `options.hitchyFolder` on complying with common module pattern.
+* `<projectFolder>` is the folder containing custom implementation relying on hitchyjs as well as a custom set of extending components (a.k.a. extensions). On using common module pattern this pathname is available via `options.projectFolder`.
 
 
 ### Discovery 
@@ -58,16 +27,16 @@ Every discovered valid component is loaded then. Either component is expected to
 
 #### Steps of Discovery
 
-1. **Discover:** Folders mentioned before are shallowly searched for sub folders containing `hitchy.json` file. Any found `hitchy.json` file is read and a handle describing the component and its meta data (which is the content of `hitchy.json` file) is appended to a collection of handles of basically discovered components.
+1. **Collect:** Folders mentioned before are shallowly searched for sub folders containing `hitchy.json` file. Any found `hitchy.json` file is read and a handle describing the component and its meta data (which is the content of `hitchy.json` file) is appended to a collection of handles of basically discovered components.
    > **Always consider such handles as read-only information!**
    > 
    > For the sake of performance and reduced memory footprint handles might be shared between requests during bootstrap so changing handles might be possible. But this isn't guaranteed behaviour. Don't use it for session data or controlling discovery e.g. by adjusting foreign component's handle etc. 
 2. All handles are compiled in a map to look up handles by component's name.
 3. **Load:** Collection of handles is used to load every component and to request its API. This happens sequentially, but in unspecified order.
-   * This request is providing map compiled before basically for detecting what components are available. By using _common modules pattern_ any component may implement decisive code providing API functions and some meta data overlay to replace parts of its meta data read from `hitchy.json` file before. _When loading component it mustn't rely on these handles providing any listed component's API._
+   * This request is providing map compiled before basically for detecting what components are available. By using _common module pattern_ any component may implement decisive code providing API functions and some meta data overlay to replace parts of its meta data read from `hitchy.json` file before. _Component mustn't rely on these handles providing any listed component's API as they do later._
    * The declaration of a component's role is processed immediately after gathering its API.
-   * Any component may export its API as such or stick with common modules pattern. In the latter case exporting function of module is invoked with two additional arguments:
-     1. `options` is provided as first argument in compliance with common modules pattern.
+   * Any component may export its API as such or stick with common module pattern. In the latter case exporting function of module is invoked with two additional arguments:
+     1. `options` is provided as first argument in compliance with common module pattern.
      2. `mapOfComponents` is referring to the map of components' names into either component's handle.
      3. `handle` is referring to (read-only) handle of component itself e.g. for accessing meta data read from `hitchy.json` file via `handle.meta`.
 4. After having requested all discovered components' APIs all components still filling some role are notified. This notification is enabling either component to gather and save access on APIs of components it is replacing prior to dropping the latter.
@@ -194,18 +163,3 @@ In either routing the invoked routing target is invoked with `this` referring to
 * `this.data` is an initially empty object available to store arbitrary data associated with current request e.g. to collect session data in early policy-related routing processors so its availale in later routing processors.
 
 Any routing target might return promise to delay further processing. **In policy-related routing returning promises is available if method isn't taking third parameter mentioned above (`next`).**
-
-
-## Meta Data
-
-All meta data of a hitchy component is provided in file `hitchy.json` found in root folder of component. The file contains JSON-encoded object with a selection of all optional properties:
-
-
-### role
-
-This property takes string providing the current component's internal name. This is derived from basename of its containing folder. By explicitly providing role here component might declare to fill certain role. This is useful to promote the component for replacing another one.
-
-
-### dependencies
-
-This optional list of strings lists all roles of hitchy components this current component depends on. This list is used to ensure all required components are available. In addition it affects the order of bootstrapping components.

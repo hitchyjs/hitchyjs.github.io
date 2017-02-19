@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link href="https://fonts.googleapis.com/css?family=Archivo+Black|Dosis" rel="stylesheet">
+	<link href="https://code.cdn.mozilla.net/fonts/fira.css" rel="stylesheet">
+	<link href="/assets/style.css" rel="stylesheet">
+	<title>hitchyjs</title>
+</head>
+<body>
+<div id="wrapper">
+	<header>
+		<div class="inner">
+			<h1><a href="/pages/">HitchyJS</a></h1>
+		</div>
+		<div class="nav">
+			<nav>
+				<a href="index.html">home</a> <a href="bootstrap.html">bootstrap</a> <a href="concepts.html">concepts</a>
+			</nav>
+		</div>
+	</header>
+	<article>
+		<h2 id="concepts">Concepts</h2>
+<h3 id="common-module-pattern">Common Module Pattern</h3>
+<p>In several situations hitchy supports particular pattern for providing additional data and/or functionality. This pattern is available for injecting components into your hitchy setup, for providing custom configuration in your project&#39;s configuration related to hitchy and in all models, controllers, policies and services of your project and its extending components.</p>
+<p>In either case any such <em>module</em> might provide requested data as such. However, the more beneficial way is to export a single function that is expected to return that requested data. You are advised to stick with the latter technique to gain full access on API and options used to start/inject hitchy. By exporting function component you might even return promise to provide requested data with delay. For example, discovery process or compilation of project&#39;s configuration is delayed until some returned promise is resolved with eventually provided information.</p>
+<p>A short example of hitchy&#39;s common module pattern looks like this:</p>
+<pre><code class="lang-javascript">/**
+ * Provides implementation for second stage of bootstrapping hitchy instance.
+ *
+ * @this HitchyAPI
+ * @param {HitchyOptions} options
+ * @returns {function(modules:HitchyComponentHandle[]):Promise.&lt;HitchyComponentHandle[]&gt;}
+ */
+module.exports = function( options ) {
+    let api = this;
+
+    return {
+        // here comes your actual data 
+        configure: function() {
+
+        }
+    };
+};
+</code></pre>
+<p>By following this pattern access on hitchy&#39;s API is provided through closure variable <code>api</code> here. This includes all found configuration, any model or controller etc. Thus, when documentation refers to some variable or data available as <code>api.foo.bar</code> this is referring to the access granted here. In addition <code>options</code> is available to access configuration provided by application or runtime environment injecting hitchy. E.g. on using hitchy&#39;s internal server this includes any custom command line option.</p>
+<h3 id="meta-data-file">Meta Data File</h3>
+<p>Every component needs to provide a file <code>hitchy.json</code> in its root folder. This file is used by hitchy to detect this component and expect it to be compatible with its bootstrap process. </p>
+<p>Basically the file might be empty by means of containing empty JSON-encoded object.</p>
+<pre><code class="lang-JSON">{}
+</code></pre>
+<p>Of course the file actually contains some information in most cases. Here is a brief list of supported properties:</p>
+<h4 id="role">role</h4>
+<p>This string property explicitly declares the role filled by component. By default this is derived from basename of folder containing component (and thus this <code>hitchy.json</code> file). By explicitly providing role here component might declare to fill certain role different from component&#39;s name. This is useful to promote the component for replacing another one.</p>
+<h4 id="dependencies">dependencies</h4>
+<p>This optional list of strings lists all roles of hitchy components this current component depends on. This list is used to ensure all required components are available. In addition it affects the order of bootstrapping components.</p>
+
+	</article>
+	<footer>
+		<div class="inner">
+			<label>&copy; 2017</label> <a href="http://cepharum.de/">cepharum GmbH</a>
+			<a href="license.html">License</a>
+		</div>
+	</footer>
+</div>
+</body>
+</html>

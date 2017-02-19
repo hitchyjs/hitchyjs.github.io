@@ -33,41 +33,8 @@ const File = require( "fs" );
 const gulp = require( "gulp" );
 
 
-let pages;
-
-const MenuCollector = new Transform( {
-	objectMode: true,
-
-	transform( file, dummy, callback ) {
-		if ( [ "index.html", "license.html" ].indexOf( file.relative ) < 0 ) {
-			pages.push( {
-				path: file.relative,
-				label: file.relative.replace( /\.html$/, "" ).replace( /\//, " - " )
-			} );
-		}
-
-		callback( null, file );
-	}
-} );
-
-const MenuInjector = new Transform( {
-	objectMode: true,
-
-	transform( file, dummy, done ) {
-		let menu = pages.map( function( link ) {
-			let relative = Path.relative( Path.dirname( file.path ), Path.resolve( file.base, link.path ) );
-
-			return `<a href="${relative}">${link.label}</a>`;
-		} );
-
-		file.contents = Buffer.from( file.contents.toString().replace( /<!--\s*MENU\s*-->/g, menu.join( " " ) ) );
-
-		done( null, file );
-	}
-} );
-
 gulp.task( "pages", function() {
-	pages = [ {
+	gulp.pages = [ {
 		path: "index.html",
 		label: "home"
 	} ];
@@ -80,17 +47,44 @@ gulp.task( "pages", function() {
 		.pipe( require( "gulp-wrap" )( {
 			src: "templates/.page.html"
 		} ) )
-		.pipe( MenuCollector )
+		.pipe( new Transform( {
+			objectMode: true,
+
+			transform( file, dummy, callback ) {
+				if ( [ "index.html", "license.html" ].indexOf( file.relative ) < 0 ) {
+					gulp.pages.push( {
+						path: file.relative,
+						label: file.relative.replace( /\.html$/, "" ).replace( /\//, " - " )
+					} );
+				}
+
+				callback( null, file );
+			}
+		} ) )
 		.pipe( gulp.dest( "pages" ) );
 } );
 
 gulp.task( "menu", ["pages"], function() {
 	return gulp.src( "pages/**/*.html", { base: "pages" } )
-		.pipe( MenuInjector )
+		.pipe( new Transform( {
+			objectMode: true,
+
+			transform( file, dummy, done ) {
+				let menu = gulp.pages.map( function( link ) {
+					let relative = Path.relative( Path.dirname( file.path ), Path.resolve( file.base, link.path ) );
+
+					return `<a href="${relative}">${link.label}</a>`;
+				} );
+
+				file.contents = Buffer.from( file.contents.toString().replace( /<!--\s*MENU\s*-->/g, menu.join( " " ) ) );
+
+				done( null, file );
+			}
+		} ) )
 		.pipe( gulp.dest( "pages" ) );
 } );
 
 gulp.task( "default", [ "pages", "menu" ] );
 
 
-gulp.watch( "src/**/*.md", [ "default" ] );
+gulp.watch( ["src/**/*.md", "templatea/*.html"], [ "default" ] );
