@@ -26,9 +26,52 @@
  * @author: cepharum
  */
 
+const Transform = require( "stream" ).Transform;
+const Path = require( "path" );
+const File = require( "fs" );
+
 const gulp = require( "gulp" );
 
-gulp.task( "default", function() {
+
+let pages;
+
+const MenuCollector = new Transform( {
+	objectMode: true,
+
+	transform( file, dummy, callback ) {
+		if ( [ "index.html", "license.html" ].indexOf( file.relative ) < 0 ) {
+			pages.push( {
+				path: file.relative,
+				label: file.relative.replace( /\.html$/, "" ).replace( /\//, " - " )
+			} );
+		}
+
+		callback( null, file );
+	}
+} );
+
+const MenuInjector = new Transform( {
+	objectMode: true,
+
+	transform( file, dummy, done ) {
+		let menu = pages.map( function( link ) {
+			let relative = Path.relative( Path.dirname( file.path ), Path.resolve( file.base, link.path ) );
+
+			return `<a href="${relative}">${link.label}</a>`;
+		} );
+
+		file.contents = Buffer.from( file.contents.toString().replace( /<!--\s*MENU\s*-->/g, menu.join( " " ) ) );
+
+		done( null, file );
+	}
+} );
+
+gulp.task( "pages", function() {
+	pages = [ {
+		path: "index.html",
+		label: "home"
+	} ];
+
 	return gulp.src( "src/**/*.md", { base: "src" } )
 		.pipe( require( "gulp-markdown" )( {
 			gfm: true,
@@ -37,7 +80,17 @@ gulp.task( "default", function() {
 		.pipe( require( "gulp-wrap" )( {
 			src: "templates/.page.html"
 		} ) )
+		.pipe( MenuCollector )
 		.pipe( gulp.dest( "pages" ) );
 } );
+
+gulp.task( "menu", ["pages"], function() {
+	return gulp.src( "pages/**/*.html", { base: "pages" } )
+		.pipe( MenuInjector )
+		.pipe( gulp.dest( "pages" ) );
+} );
+
+gulp.task( "default", [ "pages", "menu" ] );
+
 
 gulp.watch( "src/**/*.md", [ "default" ] );

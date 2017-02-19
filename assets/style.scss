@@ -4,6 +4,8 @@ $alt2Color: rgb(120,72,6);
 $alt3Color: rgb(5,55,97);
 $alt4Color: rgb(0,120,46);
 
+$linkColor: lighten( $alt1Color, 20% );
+
 @mixin box {
 	position: relative;
 	overflow: hidden;
@@ -35,11 +37,33 @@ body, p, h1, h2, h3, h4, h5, h6, form, table, ul, ol, li, blockquote {
 
 		.inner {
 			@include pagesize;
+
+			a {
+				color: white;
+				text-decoration: none;
+			}
 		}
 
-		a {
-			color: white;
-			text-decoration: none;
+		.nav {
+			@include box;
+			background: desaturate( lighten( $mainColor, 50% ), 70% );
+			padding: 0.3em 0;
+
+			nav {
+				@include pagesize;
+				line-height: 2em;
+
+				a {
+					color: $linkColor;
+					text-decoration: none;
+					white-space: nowrap;
+					font-variant: small-caps;
+
+					&:not(:last-child) {
+						margin-right: 1em;
+					}
+				}
+			}
 		}
 	}
 
@@ -120,8 +144,16 @@ blockquote {
 	background: lighten($mainColor, 70%);
 	padding: 1em;
 
+	> p {
+		margin: 0.5em 0;
+	}
+
 	> p:first-child:last-child {
 		margin: 0;
+	}
+
+	li > & {
+		margin: 1em 0;
 	}
 }
 
@@ -132,7 +164,7 @@ li {
 
 a {
 	text-decoration: underline;
-	color: lighten( $alt1Color, 20% );
+	color: $linkColor;
 
 	footer & {
 		text-decoration: none;
