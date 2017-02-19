@@ -32,7 +32,16 @@ By following this pattern access on hitchy's API is provided through closure var
 
 ### Meta Data File
 
-Every component needs to provide a file `hitchy.json` in its root folder. This file is used by hitchy to detect this component and expect it to be compatible with its bootstrap process. 
+Every component needs to provide a file `hitchy.json` in its root folder. This file is used by hitchy to detect this component and expect it to be compatible with its bootstrap process. Contained data is qualified on loading (e.g. to include some default values). It is available via special property `$meta` of components API which in turn is promoted via `api.components`.
+
+> **Example:** Component hitchy-foo has meta data file containing this:
+> ```JSON
+> { 
+>   "role": "foo", 
+>   "custom": "info" 
+> }
+> ```
+> At runtime any code is capable of accessing this information using `api.components.foo.$meta.custom` or similar.
 
 Basically the file might be empty by means of containing empty JSON-encoded object.
  

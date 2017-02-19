@@ -45,7 +45,16 @@ module.exports = function( options ) {
 </code></pre>
 <p>By following this pattern access on hitchy&#39;s API is provided through closure variable <code>api</code> here. This includes all found configuration, any model or controller etc. Thus, when documentation refers to some variable or data available as <code>api.foo.bar</code> this is referring to the access granted here. In addition <code>options</code> is available to access configuration provided by application or runtime environment injecting hitchy. E.g. on using hitchy&#39;s internal server this includes any custom command line option.</p>
 <h3 id="meta-data-file">Meta Data File</h3>
-<p>Every component needs to provide a file <code>hitchy.json</code> in its root folder. This file is used by hitchy to detect this component and expect it to be compatible with its bootstrap process. </p>
+<p>Every component needs to provide a file <code>hitchy.json</code> in its root folder. This file is used by hitchy to detect this component and expect it to be compatible with its bootstrap process. Contained data is qualified on loading (e.g. to include some default values). It is available via special property <code>$meta</code> of components API which in turn is promoted via <code>api.components</code>.</p>
+<blockquote>
+<p><strong>Example:</strong> Component hitchy-foo has meta data file containing this:</p>
+<pre><code class="lang-JSON">{ 
+  &quot;role&quot;: &quot;foo&quot;, 
+  &quot;custom&quot;: &quot;info&quot; 
+}
+</code></pre>
+<p>At runtime any code is capable of accessing this information using <code>api.components.foo.$meta.custom</code> or similar.</p>
+</blockquote>
 <p>Basically the file might be empty by means of containing empty JSON-encoded object.</p>
 <pre><code class="lang-JSON">{}
 </code></pre>
