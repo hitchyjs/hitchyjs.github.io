@@ -21,9 +21,19 @@
 	</header>
 	<article>
 		<h2 id="bootstrap">Bootstrap</h2>
-<h3 id="introduction">Introduction</h3>
 <p>On startup hitchy is detecting and collecting all required information to properly handle incoming requests later. This stage is called <em>bootstrap</em> and must be completed without any error. This page provides in-depth explanation of bootstrap process.</p>
+<blockquote>
 <p>If you are new to hitchy you might need to learn some key <a href="concepts.html">concepts</a>, first, to understand this explanation.</p>
+</blockquote>
+<p>Bootstrap is divided into sequentially processed stages:</p>
+<ol>
+<li>Triangulation</li>
+<li>Discovery</li>
+<li>Configuration</li>
+<li>Exposition</li>
+<li>Initialization</li>
+<li>Routing</li>
+</ol>
 <h3 id="triangulation">Triangulation</h3>
 <p>First of all hitchy is trying to detect its runtime environment detecting all basically required information such as current project&#39;s folder etc. This is primarily achieved by inspecting the options provided on injecting hitchy into your application. If those options don&#39;t select any project folder the triangulation is starting to search for obvious project folders to depend on hitchy starting in current working directory or in folder containing file used to start current nodejs runtime (the main file). If this doesn&#39;t lead to detection of obvious root folder the project containing current hitchy working copy in its <code>node_modules</code> hierarchy is searched.</p>
 <p>As a result of triangulation hitchy knows two folders:</p>
@@ -37,30 +47,38 @@
 <p>Every discovered valid component is loaded then. Either component is expected to provide a set of functions and meta information to be obeyed in one of several bootstrap stages performed sequentially afterwards. Every component might rely on common module pattern here.</p>
 <h4 id="steps-of-discovery">Steps of Discovery</h4>
 <ol>
-<li><strong>Collect:</strong> Folders mentioned before are shallowly searched for sub folders containing <code>hitchy.json</code> file. Any found <code>hitchy.json</code> file is read and a handle describing the component and its meta data (which is the content of <code>hitchy.json</code> file) is appended to a collection of handles of basically discovered components.<blockquote>
+<li><strong>Collect:</strong> Folders mentioned before are shallowly searched for sub folders containing <code>hitchy.json</code> file. Any found <code>hitchy.json</code> file is read and a handle describing the component and its meta data (which is the content of <code>hitchy.json</code> file) is appended to a list of handles of basically discovered components.<blockquote>
 <p><strong>Always consider such handles as read-only information!</strong></p>
-<p>For the sake of performance and reduced memory footprint handles might be shared between requests during bootstrap so changing handles might be possible. But this isn&#39;t guaranteed behaviour. Don&#39;t use it for session data or controlling discovery e.g. by adjusting foreign component&#39;s handle etc. </p>
+<p>For the sake of performance and reduced memory footprint handles might be shared between requests during bootstrap so changing handles might be possible. But this isn&#39;t guaranteed behaviour. Don&#39;t use it for session data or controlling discovery e.g. by adjusting foreign component&#39;s handle etc.</p>
 </blockquote>
 </li>
 <li>All handles are compiled in a map to look up handles by component&#39;s name.</li>
-<li><strong>Load:</strong> Collection of handles is used to load every component and to request its API. This happens sequentially, but in unspecified order.<ul>
-<li>This request is providing map compiled before basically for detecting what components are available. By using <em>common module pattern</em> any component may implement decisive code providing API functions and some meta data overlay to replace parts of its meta data read from <code>hitchy.json</code> file before. <em>Component mustn&#39;t rely on these handles providing any listed component&#39;s API as they do later.</em></li>
-<li>The declaration of a component&#39;s role is processed immediately after gathering its API.</li>
-<li>Any component may export its API as such or stick with common module pattern. In the latter case exporting function of module is invoked with two additional arguments:<ol>
-<li><code>options</code> is provided as first argument in compliance with common module pattern.</li>
-<li><code>mapOfComponents</code> is referring to the map of components&#39; names into either component&#39;s handle.</li>
+<li><p><strong>Load:</strong> The list of handles compiled in first step is used to load every component and to request its API. This happens sequentially, but in unspecified order.</p>
+<ul>
+<li>Any component may export its API as such or stick with common module pattern. </li>
+<li><p>When complying with common module pattern the exporting function of component is considered to be common module pattern function with these additional arguments:</p>
+<ol>
+<li><code>mapOfComponents</code> is referring to the map of components&#39; names into either component&#39;s handle as compiled in step two above.</li>
 <li><code>handle</code> is referring to (read-only) handle of component itself e.g. for accessing meta data read from <code>hitchy.json</code> file via <code>handle.meta</code>.</li>
 </ol>
+<p>This way any component may implement decisive code providing API consisting of functions and some meta data overlay to replace parts of component&#39;s original meta data read from <code>hitchy.json</code> file before.</p>
+<blockquote>
+<p><em>At this stage no component should rely on any handle providing related component&#39;s API.</em> See fourth step below instead.</p>
+</blockquote>
 </li>
+<li>The eventual declaration of a component&#39;s role is processed immediately after gathering its API.</li>
 </ul>
 </li>
-<li>After having requested all discovered components&#39; APIs all components still filling some role are notified. This notification is enabling either component to gather and save access on APIs of components it is replacing prior to dropping the latter.</li>
+<li><p>After having requested all discovered components&#39; APIs all components still filling some role are notified. This notification is enabling either component to gather and save access on APIs of components it is replacing prior to dropping the latter.</p>
+<p>A component in this notification is exporting function <code>onDiscovered()</code> to be invoked now. Invocation is equivalent to step 3 described above, but this time code may rely on provided map containing all listed components&#39; APIs.</p>
+<p>Due to this pattern any component waiting for invocation of its <code>onDiscovered()</code> function is also capable of realizing that it is actually used to fill the role it has declared before. And it gets a last chance to access any other component that has been competing with current one in this.</p>
+</li>
 <li><strong>Sort:</strong> Every component is expected to list roles of components it depends on. This information is used to deduce a certain order of processing components further on ensuring that any component is processed after those components it depends on.</li>
 <li><strong>Publish:</strong> Eventually, APIs of all components still filling a role are promoted in <code>api.components</code> using role of component as key, so that component <code>hitchy-foo</code> declaring to fill role <code>bar</code> is available under <code>api.components.bar</code>.</li>
 </ol>
 <h4 id="name-vs-role">Name vs. Role</h4>
 <p>Every component is having a <strong>name</strong> matching basename of folder containing the component. So, if there is an component in <code>&lt;projectFolder&gt;/node_modules/hitchy-foo</code> the component&#39;s name is <code>hitchy-foo</code>. Names are used to identify components. The name must be unique in a single applicaton relying on hitchy. It should be even globally unique. During discovery any component gets informed on what other components are about to be loaded. The name is designed to provide opportunity to safely detect availability of a certain component to rely on.</p>
-<p>Every component may declare some <strong>role</strong> it is filling, too. By default a component&#39;s role is equivalent to its name. Any component may declare different role in its <code>hitchy.json</code> file. Such a declaration is called <em>static declaration</em> of role. On loading component to gather its API this API might include meta information to replace related information read from <code>hitchy.json</code> file before. This includes declaration of role. Re-declaring role this way is called <em>dynamic declaration</em> of role.</p>
+<p>Every component may explicitly declare some <strong>role</strong> it is filling, too. By default a component&#39;s role is equivalent to its name. Any component may declare different role in its <code>hitchy.json</code> file. Such a declaration is called <em>static declaration</em> of role. On loading component to gather its API this API might include meta information to replace related information read from <code>hitchy.json</code> file before. This includes declaration of role. Re-declaring role this way is called <em>dynamic declaration</em> of role.</p>
 <p>Roles are used on processing dependencies between hitchy components resulting in a certain order of processing components in every stage of bootstrapping hitchy.</p>
 <blockquote>
 <p>In fact, all succeeding stages rely on order detected in discovery stage. All but shutdown stage process include components in this same way. Shutdown stage is using reverse order to shut down components.</p>
@@ -74,19 +92,16 @@
 <li>At end of discovery all components with roles replaced by other components get dropped, but prior to that every component with API function <code>onDiscovered()</code> is provided with APIs of all components basically discovered before to gather access on API of components it is replacing.</li>
 </ul>
 <h3 id="configuration">Configuration</h3>
-<p>In configuration stage all configuration provided in project is loaded and merged. The result configuration is an object with every immediate property containing to content provided in one of several files located in subfolder <code>config</code> of current project. Every file is expected to provide some data to become value of related property.</p>
-<p>This configuration is commonly available in <code>api.runtime.config</code>.</p>
-<p>After all custom configuration has been compiled all discovered components are invoked to process this compiled configuration e.g. by adjusting, validating, normalizing, converting, replacing any contained information.</p>
-<p>Every component may export function <code>configure()</code> to be invoked during this stage of bootstrap. This method is invoked with </p>
-<ul>
-<li><code>this</code> referring to <code>api</code>, </li>
-<li><code>options</code> in first parameter (similar to common module pattern) and </li>
-<li>information on component including its meta data read from its <code>hitchy.json</code> file before in second parameter. </li>
-</ul>
+<p>The configuration stage is divided into four steps processed strictly sequentially.</p>
+<h4 id="reading-custom-configuration">Reading custom configuration</h4>
+<p>First, all modules immediately located in <code>&lt;projectFolder&gt;/config</code> are loaded using required. Either module is expected to describe one part of resulting configuration object. Modules either export configuration object or comply with common module pattern to provide it on request.</p>
+<p>All results of found modules are compiled into single configuration object using a module&#39;s filename without path and extension as property. The resulting configuration is promoted via <code>api.runtime.config</code>.</p>
 <blockquote>
-<p>Providing <code>api</code> and <code>options</code> here is a bit redundant, but makes component coding slightly more flexible. Finally it doesn&#39;t hurt either.</p>
+<p>Configuration <code>{custom:&quot;bar&quot;}</code> provided by module <code>&lt;projectFolder&gt;/config/foo.js</code> is available via <code>api.runtime.config.foo.custom</code> later.</p>
 </blockquote>
-<p>The method <code>configure()</code> might return promise to delay further configuration in particular and bootstrap in general.</p>
+<h4 id="requesting-component-to-configure">Requesting component to configure</h4>
+<p>All discovered components exposing related API function <code>configure()</code> are invoked to process this compiled configuration e.g. by adjusting, validating, normalizing, converting or replacing any contained information.</p>
+<p>Exposed function <code>configure()</code> must comply with <em>common module function pattern</em>. Additional argument in this case is either component&#39;s handle providing basic information on component such as its meta data read from its <code>hitchy.json</code> file before.</p>
 <pre><code class="lang-javascript">module.exports = function( options ) {
     let api = this;
 
@@ -100,20 +115,48 @@
 <blockquote>
 <p>At end of bootstrap the API will be sealed deeply to prevent accidental modifications of this configuration during actual runtime of your hitchy-based application. Thus you should do all required qualifcation of configuration data here.</p>
 </blockquote>
-<p>When all configuration has been qualified bootstrap process is loading all models, controllers, policies and services provided by component, again obeying order resulting from discovery before as well as supporting hitchy&#39;s common module pattern. </p>
-<p>So, if you have components <code>foo</code> and <code>bar</code> with <code>foo</code> listing <code>bar</code> as its dependency then</p>
+<h3 id="exposition">Exposition</h3>
+<p>In this stage hitchy is gathering and merging elements to build up and expose API of hitchy-based application to be started. Hitchy internally supports four types of such elements: <em>models</em>, <em>controllers</em>, <em>policies</em> and <em>services</em>. Either type may consist of several named elements, but elements must be named uniquely in scope of their type.</p>
+<blockquote>
+<p>There can&#39;t be two models named <code>foo</code>, but it is possible to have a model named <code>foo</code> and a controller named <code>foo</code>, too.</p>
+</blockquote>
+<p>First, hitchy is loading such API elements from every discovered component obeying order detected back then. In scope of a single component models are processed first, controllers are second, policies are third and services are last. In scope of either type per component processing order is unspecified.</p>
+<blockquote>
+<p>If you have components <code>foo</code> and <code>bar</code> with <code>foo</code> listing <code>bar</code> as its dependency then</p>
 <ul>
 <li>all models of <code>bar</code> are loaded in unspecified order,</li>
-<li>all controlllers of <code>bar</code>are loaded in unspecified order,</li>
+<li>all controllers of <code>bar</code>are loaded in unspecified order,</li>
 <li>all policies of <code>bar</code> are loaded in unspecified order,</li>
 <li>all services of <code>bar</code> are loaded in unspecified order,</li>
 <li>all models of <code>foo</code> are loaded in unspecified order,</li>
-<li>all controlllers of <code>foo</code>are loaded in unspecified order,</li>
+<li>all controllers of <code>foo</code>are loaded in unspecified order,</li>
 <li>all policies of <code>foo</code> are loaded in unspecified order and</li>
 <li>all services of <code>foo</code> are loaded in unspecified order.</li>
 </ul>
-<p>Those models, controllers, policies and services are located in folder <code>api/models</code>, <code>api/controllers</code>, <code>api/policies</code> and <code>api/services</code> of either component. Any model, controller, service or policy might use function according to <em>common module pattern</em>. In that case any previous state of a model, controller, etc. with the same name (e.g. as provided by another component before) is provided in second parameter so the function may extend that one&#39;s functionality.</p>
-<p>Results are cumulated and finally available in <code>api.runtime.models</code>, <code>api.runtime.controllers</code>, <code>api.runtime.policies</code> and <code>api.runtime.services</code>. Either element&#39;s name is derived from basename of related file without adjusting case or similar except for stripping off extension <code>.js</code>.</p>
+</blockquote>
+<p>Second, hitchy is handling current application/project relying on hitchy as another component to process just like any other component before.</p>
+<h4 id="process-per-component-">Process per &quot;component&quot;</h4>
+<p>Hitchy is searching selected sub-folders of component&#39;s root (in case of components processed first) or <code>&lt;projectFolder&gt;</code> (in case of application processed last).</p>
+<ul>
+<li>Models are read from <code>api/models</code> (also supporting <code>api/model</code> to be more flexible).</li>
+<li>Controllers are read from <code>api/controllers</code> (also supporting <code>api/controller</code>).</li>
+<li>Policies are read from <code>api/policies</code> (also supporting <code>api/policy</code>).</li>
+<li>Services are read from <code>api/services</code> (also supporting <code>api/service</code>).</li>
+</ul>
+<p>For every element there must be a separate file to be named like the element plus the extension <code>.js</code>. Every such file is considered to export API element directly or by complying with common module pattern. </p>
+<p>On complying with common module pattern the function exported by module is invoked with additional argument providing element of same name and type gathered and merged so far. This is important for simple extension and overriding of elements exposed by components any current one depends on.</p>
+<blockquote>
+<p>By default and by intention, hitchy does not adjust case of filenames on deriving names of either element. However, this might be problematic on case-insensitive filesystems. <strong>To support some options to be used then you are strongly advised to keep filenames lowercase.</strong></p>
+</blockquote>
+<p>All gathered and finally merged elements of application&#39;s API are exposed in <code>api.runtime</code>, grouped by type of element and using either element&#39;s name.</p>
+<ul>
+<li>Models are exposed in <code>api.runtime.models</code>.</li>
+<li>Controllers are exposed in <code>api.runtime.controllers</code>.</li>
+<li>Policies are exposed in <code>api.runtime.policies</code>.</li>
+<li>Services are exposed in <code>api.runtime.services</code>.</li>
+</ul>
+<h4 id="finalize-elements">Finalize Elements</h4>
+<p>In the end there are sets of named elements per type considered to build the application&#39;s API. But at last every component is enabled again to check and probably qualify that result as desired. For this a component should provide function <code>onExposing()</code> in its API. The method is expected to comply with common module function pattern. The component&#39;s handle is passed as additional argument. The function is considered to modify API elements using exposed collections under <code>api.runtime</code> listed above.</p>
 <h3 id="initialization">Initialization</h3>
 <p>After configuration stage all component are initialized. This stage is primary useful to process all configuration and handle described models etc. e.g. for preparing data storage backend to match schema described by models.</p>
 <p>Just like in configuration stage every component may export function <code>initialize()</code> to be invoked during this stage of bootstrap. This method is invoked with the same arguments described on configuration stage before. It also might return promise to delay further initialization in particular and bootstrap in general.</p>
