@@ -40,6 +40,14 @@ gulp.task( "pages", function() {
 	} ];
 
 	return gulp.src( "src/**/*.md", { base: "src" } )
+		.pipe( new Transform( {
+			objectMode: true,
+			transform( file, dummy, done ) {
+				file.contents = Buffer.from( file.contents.toString().replace( /(\[[^\]]+\]\([^\)]+)\.md\)/g, "$1.html)" ) );
+
+				done( null, file );
+			}
+		} ) )
 		.pipe( require( "gulp-markdown" )( {
 			gfm: true,
 			tables: true
@@ -49,8 +57,7 @@ gulp.task( "pages", function() {
 		} ) )
 		.pipe( new Transform( {
 			objectMode: true,
-
-			transform( file, dummy, callback ) {
+			transform( file, dummy, done ) {
 				if ( [ "index.html", "license.html" ].indexOf( file.relative ) < 0 ) {
 					gulp.pages.push( {
 						path: file.relative,
@@ -58,7 +65,7 @@ gulp.task( "pages", function() {
 					} );
 				}
 
-				callback( null, file );
+				done( null, file );
 			}
 		} ) )
 		.pipe( gulp.dest( "pages" ) );
@@ -68,7 +75,6 @@ gulp.task( "menu", ["pages"], function() {
 	return gulp.src( "pages/**/*.html", { base: "pages" } )
 		.pipe( new Transform( {
 			objectMode: true,
-
 			transform( file, dummy, done ) {
 				let menu = gulp.pages.map( function( link ) {
 					let relative = Path.relative( Path.dirname( file.path ), Path.resolve( file.base, link.path ) );
