@@ -4,6 +4,7 @@ $alt2Color: rgb(120,72,6);
 $alt3Color: rgb(5,55,97);
 $alt4Color: rgb(0,120,46);
 
+$lightMainColor: lighten($mainColor, 70%);
 $linkColor: lighten( $alt1Color, 20% );
 
 @mixin box {
@@ -46,7 +47,7 @@ body, p, h1, h2, h3, h4, h5, h6, form, table, ul, ol, li, blockquote {
 
 		.nav {
 			@include box;
-			background: desaturate( lighten( $mainColor, 50% ), 70% );
+			background: $lightMainColor;
 			padding: 0.3em 0;
 
 			nav {
@@ -141,7 +142,7 @@ pre, code {
 
 blockquote {
 	border-left: 5px solid $mainColor;
-	background: lighten($mainColor, 70%);
+	background: $lightMainColor;
 	padding: 1em;
 
 	> p {
