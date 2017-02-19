@@ -44,6 +44,15 @@ module.exports = function( options ) {
 };
 </code></pre>
 <p>By following this pattern access on hitchy&#39;s API is provided through closure variable <code>api</code> here. This includes all found configuration, any model or controller etc. Thus, when documentation refers to some variable or data available as <code>api.foo.bar</code> this is referring to the access granted here. In addition <code>options</code> is available to access configuration provided by application or runtime environment injecting hitchy. E.g. on using hitchy&#39;s internal server this includes any custom command line option.</p>
+<h4 id="common-module-function-pattern">Common Module Function Pattern</h4>
+<p>As a derived concept functions might be in compliance with <em>common module function pattern</em> by satisfying these criteria:</p>
+<ol>
+<li>It <strong>must</strong> expect reference on <code>api</code> via its <code>this</code> variable.</li>
+<li>It <strong>must</strong> expect reference on <code>options</code> in first argument.</li>
+<li>It <strong>might</strong> expect any <em>additional arguments</em> succeeding that first one.</li>
+<li>It <strong>might</strong> return Promise instance to delay actual result. This <strong>may</strong> suspend overall processing for relying on this function&#39;s result.</li>
+</ol>
+<p>In several cases a component complying with Common Module Pattern is exporting functions via this pattern which comply with Common Module Function Pattern and thus are called with references on <code>api</code> and <code>options</code>, too. Though this is slightly redundant by design it establishes more flexibility in designing components and modules since modules mustn&#39;t comply with Common Module Pattern as a whole, but still might provide function complying with this pattern. In addition passing references locally might result in a slightly better performance due to preventing deeply accessing closure scope variables.</p>
 <h3 id="meta-data-file">Meta Data File</h3>
 <p>Every component needs to provide a file <code>hitchy.json</code> in its root folder. This file is used by hitchy to detect this component and expect it to be compatible with its bootstrap process. Contained data is qualified on loading (e.g. to include some default values). It is available via special property <code>$meta</code> of components API which in turn is promoted via <code>api.components</code>.</p>
 <blockquote>
