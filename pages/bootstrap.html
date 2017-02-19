@@ -23,6 +23,7 @@
 		<h2 id="bootstrap">Bootstrap</h2>
 <h3 id="introduction">Introduction</h3>
 <p>On startup hitchy is detecting and collecting all required information to properly handle incoming requests later. This stage is called <em>bootstrap</em> and must be completed without any error. This page provides in-depth explanation of bootstrap process.</p>
+<p>If you are new to hitchy you might need to learn some key <a href="concepts.html">concepts</a>, first, to understand this explanation.</p>
 <h3 id="triangulation">Triangulation</h3>
 <p>First of all hitchy is trying to detect its runtime environment detecting all basically required information such as current project&#39;s folder etc. This is primarily achieved by inspecting the options provided on injecting hitchy into your application. If those options don&#39;t select any project folder the triangulation is starting to search for obvious project folders to depend on hitchy starting in current working directory or in folder containing file used to start current nodejs runtime (the main file). If this doesn&#39;t lead to detection of obvious root folder the project containing current hitchy working copy in its <code>node_modules</code> hierarchy is searched.</p>
 <p>As a result of triangulation hitchy knows two folders:</p>

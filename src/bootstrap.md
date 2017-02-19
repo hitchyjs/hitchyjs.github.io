@@ -5,6 +5,8 @@
 
 On startup hitchy is detecting and collecting all required information to properly handle incoming requests later. This stage is called _bootstrap_ and must be completed without any error. This page provides in-depth explanation of bootstrap process.
 
+If you are new to hitchy you might need to learn some key [concepts](concepts.md), first, to understand this explanation.
+
 
 ### Triangulation
 
