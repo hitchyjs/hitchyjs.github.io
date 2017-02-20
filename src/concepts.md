@@ -17,7 +17,7 @@ A short example of hitchy's common module pattern looks like this:
  * @returns {function(modules:HitchyComponentHandle[]):Promise.<HitchyComponentHandle[]>}
  */
 module.exports = function( options ) {
-	let api = this;
+	const api = this;
 	
 	return {
 		// here comes your actual data 
