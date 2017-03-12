@@ -158,6 +158,27 @@ blockquote {
 	}
 }
 
+table {
+	margin: 1em auto;
+	border-collapse: collapse;
+
+	th {
+		padding: 0.2em 0.4em;
+		vertical-align: bottom;
+	}
+
+	td {
+		padding: 0.2em 0.4em;
+		vertical-align: top;
+	}
+
+	tbody > tr:nth-child(2n) {
+		background: $lightMainColor;
+	}
+
+	overflow: auto;
+}
+
 li {
 	padding-left: 1em;
 	margin-left: 2em;
