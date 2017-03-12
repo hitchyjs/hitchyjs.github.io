@@ -148,9 +148,7 @@ After having collected and compiled API elements of all extensions either extens
 * **purpose:** 
   * qualify definitions of models, controllers, policies and services (e.g. by extension introducing basic support for models or similar)
 * **knowledge:**
-  * hitchy's core API plus
-	* configuration in `api.runtime.config`
-	* compiled elements in `api.runtime.models`, `api.runtime.controllers`, etc.
+  * hitchy's full API incl. core, configuration and recently compiled elements in `api.runtime.models`, `api.runtime.controllers`, etc.
   * runtime options
   * collected information on current extension (incl. its folder, name, meta information and API)
 * **processing order:** dependency-based
@@ -232,8 +230,8 @@ On properly shutting down hitchy application it first closes all open client con
 | `$meta` | discovery | - | no | object |
 | `onDiscovered()` | discovery | Core, Options | yes | CMFP |
 | `configure()` | configuration | Core + Config, Options | yes | CMFP |
-| `onExposing()` | exposure | Core + Config + Elements, Options | yes | CMFP |
+| `onExposing()` | exposure | Full API, Options | yes | CMFP |
 | `initialize()` | initialization | Full API, Options | yes | CMFP |
 | `policies()` | router setup | Full API, Options | yes | object or CMFP |
 | `routes()` | router setup | Full API, Options | yes | object or CMFP |
-| `shutdown()` | shutdown | Core, Options | yes, reversed | CMFP |
+| `shutdown()` | shutdown | Full API, Options | yes, reversed | CMFP |
