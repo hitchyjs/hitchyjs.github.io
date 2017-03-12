@@ -2,7 +2,7 @@
 
 Hitchy by itself isn't capable of doing quite much. It strongly relies on extensions. This document provides brief summary on how extensions are integrated into hitchy and describes how to write extensions for hitchy.
 
-## How Is Hitchy Loading Extensions
+## Finding and Loading Extensions
 
 All extensions get loaded on hitchy's bootstrap. Thus all extensions are loaded prior to handling first request. Any folder in your project's **node_modules** is tested for containing **hitchy.json** file and considered hitchy extension then. This file must be located in root folder of extension and contains the extension's _static meta information_.
 
@@ -68,7 +68,7 @@ There are three kinds of roles:
 
 While the two former are called _static role_ of extension, the latter is called its _dynamic role_. On processing roles of extensions dynamic role takes precedence over static ones, explicitly declared one over implicit one.
 
-##### What if two extensions declare the same role?
+##### What if Two Extensions Declare the Same Role?
 
 _In scope of an application every role may be filled by single extension, only._ 
 
@@ -76,7 +76,7 @@ However, multiple extensions may statically declare to fill the same role as lon
 
 Finally two extensions must not claim to fill the same role dynamically.
 
-##### What if role is revoked from extension?
+##### What if Role is Revoked from Extension?
 
 Whenever dynamic role of one extension causes revocation of same role statically declared by another one the latter extension doesn't fill any role anymore unless it declares one dynamically. 
 
@@ -84,7 +84,7 @@ Whenever dynamic role of one extension causes revocation of same role statically
 
 Extensions without role won't be processed after **onDiscovered** (see below). Hitchy won't obey them on configuring or initializing extensions and on preparing routes. It won't be exposed as part of Hitchy's runtime API. However, any replacing extension might use it for extending its functionality.
 
-##### What is good for?
+##### What is it Good for?
 
 Roles are used to find extensions on resolving dependencies of either extension. Dynamic roles are useful to check current application's scenario first by inspecting list of available extensions. By declaring role dynamically one extension can replace another one transparently e.g. for extending the latter one's functionality.
 
@@ -200,7 +200,7 @@ Every extension may provide one or two separate maps for matching incoming reque
   * object
   * common module function pattern
     
-#### Important note on routing
+#### Important Note on Routing
 
 Request dispatching doesn't obey order of routes given by single extension. Thus any extension shouldn't rely on routes being processed the same way they are listed in source code, but carefully choose request URL patterns for uniquely matching. On one hand that's due to improving organization of routes for fast processing. That's way routing maps are organized as objects in javascript. On the other hand properties of objects can't be enumerated in a reliable order. That's due to specification for implementations of javascript engine.
 
