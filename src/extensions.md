@@ -15,8 +15,6 @@ Here comes a brief profile of _extension loading_:
 #### Profile
 
 * **stage:** discovery
-  * 2nd stage of bootstrap
-  * 1st stage involving any particular extension
 * **purpose:** (or _what is it good for in an extension_)
   * detect available extensions
   * choose role to fill eventually
@@ -224,3 +222,18 @@ On properly shutting down hitchy application it first closes all open client con
 * **processing order:** reverse dependency-based
 * **supported types:** 
   * common module function pattern
+
+
+## Profile Summary
+
+| property | stage | knowledge | dependency-based order | supported types |
+| --- | --- | --- | --- | --- |
+| _loading_ | discovery | Core, Options | no | object or CMP |
+| `$meta` | discovery | - | no | object |
+| `onDiscovered()` | discovery | Core, Options | yes | CMFP |
+| `configure()` | configuration | Core + Config, Options | yes | CMFP |
+| `onExposing()` | exposure | Core + Config + Elements, Options | yes | CMFP |
+| `initialize()` | initialization | Full API, Options | yes | CMFP |
+| `policies()` | router setup | Full API, Options | yes | object or CMFP |
+| `routes()` | router setup | Full API, Options | yes | object or CMFP |
+| `shutdown()` | shutdown | Core, Options | yes, reversed | CMFP |

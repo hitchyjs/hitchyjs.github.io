@@ -31,11 +31,7 @@
 <p>Here comes a brief profile of <em>extension loading</em>:</p>
 <h4 id="profile">Profile</h4>
 <ul>
-<li><strong>stage:</strong> discovery<ul>
-<li>2nd stage of bootstrap</li>
-<li>1st stage involving any particular extension</li>
-</ul>
-</li>
+<li><strong>stage:</strong> discovery</li>
 <li><strong>purpose:</strong> (or <em>what is it good for in an extension</em>)<ul>
 <li>detect available extensions</li>
 <li>choose role to fill eventually</li>
@@ -265,6 +261,83 @@
 </ul>
 </li>
 </ul>
+<h2 id="profile-summary">Profile Summary</h2>
+<table>
+<thead>
+<tr>
+<th>property</th>
+<th>stage</th>
+<th>knowledge</th>
+<th>dependency-based order</th>
+<th>supported types</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>loading</em></td>
+<td>discovery</td>
+<td>Core, Options</td>
+<td>no</td>
+<td>object or CMP</td>
+</tr>
+<tr>
+<td><code>$meta</code></td>
+<td>discovery</td>
+<td>-</td>
+<td>no</td>
+<td>object</td>
+</tr>
+<tr>
+<td><code>onDiscovered()</code></td>
+<td>discovery</td>
+<td>Core, Options</td>
+<td>yes</td>
+<td>CMFP</td>
+</tr>
+<tr>
+<td><code>configure()</code></td>
+<td>configuration</td>
+<td>Core + Config, Options</td>
+<td>yes</td>
+<td>CMFP</td>
+</tr>
+<tr>
+<td><code>onExposing()</code></td>
+<td>exposure</td>
+<td>Core + Config + Elements, Options</td>
+<td>yes</td>
+<td>CMFP</td>
+</tr>
+<tr>
+<td><code>initialize()</code></td>
+<td>initialization</td>
+<td>Full API, Options</td>
+<td>yes</td>
+<td>CMFP</td>
+</tr>
+<tr>
+<td><code>policies()</code></td>
+<td>router setup</td>
+<td>Full API, Options</td>
+<td>yes</td>
+<td>object or CMFP</td>
+</tr>
+<tr>
+<td><code>routes()</code></td>
+<td>router setup</td>
+<td>Full API, Options</td>
+<td>yes</td>
+<td>object or CMFP</td>
+</tr>
+<tr>
+<td><code>shutdown()</code></td>
+<td>shutdown</td>
+<td>Core, Options</td>
+<td>yes, reversed</td>
+<td>CMFP</td>
+</tr>
+</tbody>
+</table>
 
 	</article>
 	<footer>
