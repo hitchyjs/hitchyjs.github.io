@@ -1,0 +1,21 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><base href="/"><link rel="stylesheet" href="design/index.css"><title>Releasing Resources on Shutdown | Hitchy</title></head><body class="page"><div id="wrapper"><div id="north"><div class="navigation"><nav class="primary center-block"><ul><li class="item"><a href="">Home</a></li><li class="item"><a href="about/">About</a></li><li class="item"><a href="download/">Download</a></li><li class="item"><a href="concepts/">Concepts</a></li><li class="item"><a href="runtime/">At Runtime</a></li><li class="selected item"><a href="extensions/">Extensions</a></li></ul><div class="boilerplate"><div class="site-title">Hitchy</div><div class="site-subtitle">a Javascript-based web application framework</div></div></nav></div><div class="center-block"><h1>Releasing Resources on Shutdown</h1></div></div><div id="main"><div class="columnizer"><div id="core"><article class="center-block"><h3 id="shutdown"><a href="#shutdown" class="headerlink" title="shutdown()"></a><code>shutdown()</code></h3><p>This method is expected to implement counterpart to <code>initialize()</code> described before.</p>
+<p>On properly shutting down Hitchy application it first closes all open client connections. After that it shuts down application by notifying all extensions in reverse dependency-based order using this optionally provided API method. Due to reversing order of extension processing any extension that was initialized last on bootstrap gets shut down first now.</p>
+<h4 id="Profile"><a href="#Profile" class="headerlink" title="Profile"></a>Profile</h4><ul>
+<li><strong>stage:</strong> application shutdown</li>
+<li><strong>purpose:</strong> <ul>
+<li>release resources requested on initializing extension</li>
+</ul>
+</li>
+<li><strong>knowledge:</strong><ul>
+<li>Hitchy’s full API incl. core, configuration and elements</li>
+<li>runtime options</li>
+<li>collected information on current extension (incl. its folder, name, meta information and API)</li>
+</ul>
+</li>
+<li><strong>processing order:</strong> reverse dependency-based</li>
+<li><strong>supported types:</strong> <ul>
+<li>common module function pattern</li>
+</ul>
+</li>
+</ul>
+</article></div><div id="left"><nav class="sub navigation"><ul><li class="item"><a href="extensions/phases.html">Phases</a></li><li class="item"><a href="extensions/discovery.html">Discovery</a></li><li class="item"><a href="extensions/configuration.html">Configuration</a></li><li class="item"><a href="extensions/exposure.html">Exposure</a></li><li class="item"><a href="extensions/initialization.html">Initialization</a></li><li class="item"><a href="extensions/routing.html">Routing</a></li><li class="item selected"><a href="extensions/shutdown.html">Shutdown</a></li></ul></nav></div><div id="right"></div></div></div><div id="south"><div class="center-block"><div class="copyright">&copy; 2017 <a href="http://cepharum.de" target="_blank">cepharum GmbH</a></div> - <nav class="footer"><ul><li class="item"><a href="imprint/">Imprint</a></li></ul></nav> - <div class="timestamp">Last Update: April 24, 2017 4:50 PM</div></div></div></div><script type="text/javascript" src="js/fx.js"></script></body></html>
