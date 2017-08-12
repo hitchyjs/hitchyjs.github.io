@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><base href="/"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link rel="stylesheet" href="design/index.css"><title>Routing Requests | Hitchy</title></head><body class="page"><div id="wrapper"><div id="north"><div class="navigation"><nav class="primary center-block"><ul><li class="item"><a href="">Home</a></li><li class="item"><a href="about/">About</a></li><li class="item"><a href="download/">Download</a></li><li class="item"><a href="concepts/">Concepts</a></li><li class="selected item"><a href="runtime/">At Runtime</a></li><li class="item"><a href="extensions/">Extensions</a></li></ul><div class="boilerplate"><div class="site-title">Hitchy</div><div class="site-subtitle">a Javascript-based web application framework</div></div></nav></div><div class="center-block"><h1>Routing Requests</h1></div></div><div id="main"><div class="columnizer"><div id="core"><article class="center-block"><h2 id="Routing-in-Hitchy-An-Introduction"><a href="#Routing-in-Hitchy-An-Introduction" class="headerlink" title="Routing in Hitchy: An Introduction"></a>Routing in Hitchy: An Introduction</h2><p>Hitchy comes with a custom request processing engine. This engine was primarily inspired by <a href="http://sailsjs.org" target="_blank" rel="external">SailsJS</a>.</p>
+<h3 id="Routing-Phases"><a href="#Routing-Phases" class="headerlink" title="Routing Phases"></a>Routing Phases</h3><p>On starting any Hitchy-based application its core is discovering all required extensions resulting in a certain order of processing these extensions at any time. This same order is obeyed on collecting route configurations of every discovered extension and combining them with each other and with custom routes of current application into common routing lists to be processed on every incoming request.</p>
+<p>At first Hitchy is collecting all configurations of routes in groups each related to a single source and sorts those in compliance with order of extensions. These groups are ordered like this:</p>
+<ol>
+<li>There is a leading group for all custom routes of current application to be processed <strong>early</strong>.</li>
+<li>Next there are separate groups per included extension in same order as extensions each containing routes of either extension to be processed <strong>before</strong> some default action.</li>
+<li>After that there is another group of custom routes of current application to be processed <strong>before</strong> any default action.</li>
+<li>Then there is a group of routes considered implementing any default action. This group is used to contain all routes designated to <em>blueprint actions</em>.</li>
+</ol>
+<p>All these groups contain configuration of routes commonly preceding or (eventually) representing any default action. Thus they are considered routes of routing phase named <strong>before</strong>. A second set of groups are commonly considered to configure routes of routing phase named <strong>after</strong>:</p>
+<ol>
+<li>First there is a group for all custom routes of current application to be processed right <strong>after</strong> any default action.</li>
+<li>Then there are separate groups per included extension each containing routes of either extension to be processed <strong>after</strong> some default action. This time these groups are sorted in reverse order compared to discovered order of extensions.</li>
+<li>Finally there is a group for all custom routes of current application to be processed as <strong>late</strong> as possible.</li>
+</ol>
+<blockquote>
+<p><strong>Note:</strong> By reversing order of extension-related groups in routing phase <code>after</code> routes establish proper nesting of extensions’ scopes when it comes to request processing. </p>
+<p>For example, consider some extension declaring <em>policy routes</em> used to take time of request processing. This has to start taking time as early as possible but stop timer as lately as possible. </p>
+<p>In another example some extension might adjust request context to be used with every extension succeeding this one due to dependencies. When it comes to reverting this special request context this shouldn’t happen before having processed all <code>late</code> routes of those extensions processed in modified context during <code>before</code> phase or after having processed <code>late</code> routes of extensions that haven’t been processed in modified context in <code>before</code> phase previously.</p>
+</blockquote>
+<p>There are two pairs of such ordered groups in every Hitchy application as routes may be configured for filtering requests and for responding.</p>
+<ul>
+<li><p>The former case is related to choosing policies to include with request processing and thus those routes are called <em>policy routes</em>. </p>
+</li>
+<li><p>The latter kind of routes is checked when it comes to generating some response. Since processing of these routes terminates on first route matching any current request they are called <em>terminal routes</em>.</p>
+</li>
+</ul>
+<p>Finally this results in four lists of groups processed in order like this:</p>
+<ol>
+<li>policy routes of <strong>before</strong> routing phase</li>
+<li>terminal routes of <strong>before</strong> routing phase</li>
+<li>terminal routes of <strong>after</strong> routing phase</li>
+<li>policy routes of <strong>after</strong> routing phase</li>
+</ol>
+<blockquote>
+<p><strong>Note:</strong> Due to checking for terminal routes terminates on first matching route the actual dispatching might be skipping the third list containing terminal routes of <code>after</code> routing phase.</p>
+</blockquote>
+<h4 id="Routes-of-a-Single-Group"><a href="#Routes-of-a-Single-Group" class="headerlink" title="Routes of a Single Group"></a>Routes of a Single Group</h4><p>In any group described before configuration of routes may be given in one of three ways:</p>
+<ul>
+<li>An array of objects combines definition of a route’s source and its target in every single item.</li>
+<li>An instance of <code>Map</code> can be used to map from source descriptors into target selectors while obeying order of given mappings.</li>
+<li>A regular object might be used to simplify definition and reading of configuration. It is also considered to contain properties each mapping from source descriptors into target selectors. <em>Due to the nature of regular objects configurations might not be processed in order given in configuration.</em></li>
+</ul>
+<h3 id="Configuring-Routes"><a href="#Configuring-Routes" class="headerlink" title="Configuring Routes"></a>Configuring Routes</h3><p>Every route is configured by describing its source and assigning a target to be invoked on a request matching the route.</p>
+<h4 id="Describing-a-Route’s-Source"><a href="#Describing-a-Route’s-Source" class="headerlink" title="Describing a Route’s Source"></a>Describing a Route’s Source</h4><p>Every route require’s a source to be matched by a request so the route is used to process the request. A source usually consists of two parts:</p>
+<ol>
+<li>an HTTP method</li>
+<li>a path name or some pattern describing the path name with injected parameters and optional parts</li>
+</ol>
+<p>While the provision of an HTTP method is optional the path name is mandatory.</p>
+<p>The source may be given as a string or as an object, though use of string is required when configuration multiple routes using instance of <code>Map</code> or regular object.</p>
+<h5 id="Source-as-a-String"><a href="#Source-as-a-String" class="headerlink" title="Source as a String"></a>Source as a String</h5><p>On providing a route’s source as string it must comply with this schema:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[ &lt;method&gt; ] &lt;path-name-pattern&gt;</div></pre></td></tr></table></figure>
+<p>This means:</p>
+<ul>
+<li>On providing an HTTP method it has to precede the provision of path name. It must be separated from the latter using one or more whitespace characters. Thus the <code>&lt;method&gt;</code> can’t contain any whitespace. And the <code>[</code> and <code>]</code> aren’t meant to be given literally but indicate fact of <code>&lt;method&gt;</code> being optional.</li>
+<li>The path name may be any pattern to be supported by <a href="https://www.npmjs.com/package/path-to-regexp" target="_blank" rel="external">path-to-regexp</a> which is intended to support Express-style path name patterns in turn.</li>
+</ul>
+<p>If provision of HTTP method is omitted the special method <strong>ALL</strong> is used by default. This special method is requesting to process the route without respect to the request’s HTTP method.</p>
+<h5 id="Source-as-an-Object"><a href="#Source-as-an-Object" class="headerlink" title="Source as an Object"></a>Source as an Object</h5><p>A source’s method and/or path name may be given in an object as well using two separate properties for either information:</p>
+<ul>
+<li>Property <code>type</code> may be used to provide optional HTTP method route is to be bound to.</li>
+<li>Property <code>url</code> is used to provide path name pattern to be matched.</li>
+</ul>
+<p>Either property must be given as string.</p>
+<blockquote>
+<p><strong>Note:</strong> On providing multiple routes in an array these properties are combined with properties selecting the route’s target satisfying the requirement to have one item in array per route to be configured. That’s why <code>type</code> is used to select the HTTP <em>method</em>.</p>
+</blockquote>
+<h4 id="Selecting-a-Route’s-Target"><a href="#Selecting-a-Route’s-Target" class="headerlink" title="Selecting a Route’s Target"></a>Selecting a Route’s Target</h4><p>A route’s target is usually a function exposed by a controller or policy. Thus <em>selecting a target</em> means to address or provide the function to be invoked on every request matching the route’s source. This can be achieved in one of three ways:</p>
+<h5 id="Target-as-a-Function"><a href="#Target-as-a-Function" class="headerlink" title="Target as a Function"></a>Target as a Function</h5><p>Of course it is possible to provide the target as a function reference. This option is available due to every other option will be converted into this kind. However this way isn’t considered optimum due to reduced code readability and less flexibility regarding function overloading using extensions etc.</p>
+<h5 id="Target-as-a-String"><a href="#Target-as-a-String" class="headerlink" title="Target as a String"></a>Target as a String</h5><p>A target may be named by combining name of a policy (when used on a policy route) or controller (when used on a terminal route) with the name of static method exposed by that policy or controller. Both parts may be combined using single period or double colon. </p>
+<blockquote>
+<p>The name of policy or controller may optionally include related suffix <code>Policy</code> or <code>Controller</code>. This name is always used lowercase and so is case-insensitive.</p>
+</blockquote>
+<h5 id="Target-as-an-Object"><a href="#Target-as-an-Object" class="headerlink" title="Target as an Object"></a>Target as an Object</h5><p>As with sources any target may be provided using regular object with certain properties providing same information as a string described before:</p>
+<ul>
+<li>Property <code>controller</code> is considered naming policy or controller to be used.</li>
+<li>Property <code>method</code> is naming the method to be exposed statically by the selected policy or controller.</li>
+</ul>
+<p>In addition this object may contain a property <code>args</code> providing an array of arguments to be passed on invoking target additionally.</p>
+<p>This way of selecting a target may be merged with properties describing source as given before. This merging is required to provide an array of route configurations with each item of array describing source and target of a route. </p>
+<h4 id="Configuring-Routes-per-Extension"><a href="#Configuring-Routes-per-Extension" class="headerlink" title="Configuring Routes per Extension"></a>Configuring Routes per Extension</h4><p>Extensions describe their individual routing in hooks named <code>policies</code>, <code>routes</code> and <code>blueprints</code>.</p>
+<p>Providing any of these hooks is optional. Either hook takes a single list of routes to be bound to some default phase. Optionally hooks <code>policies</code> and <code>routes</code> may use separate lists to explicitly bind routes to one of the supported phases. Route configurations given in hook <code>policies</code> are used for <em>policy routing</em> and those given in hooks <code>routes</code> and <code>blueprints</code> are used for <em>terminal routing</em>.</p>
+<ul>
+<li><p>On providing single list in a hook this one is considered to be used in routing phase <strong>before</strong> default action.  </p>
+ <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">routes: &#123;</div><div class="line">    <span class="string">"GET /user/login"</span>: <span class="string">"UserController::login"</span>,</div><div class="line">    ...	</div><div class="line">&#125;,</div><div class="line">...</div></pre></td></tr></table></figure>
+</li>
+<li><p>By providing two lists any extension can provide separate lists for routing phases <strong>before</strong> and <strong>after</strong> default action. In this case lists are provided as properties <code>before</code> and <code>after</code> of a regular object.  </p>
+ <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">routes: &#123;</div><div class="line">    <span class="attr">before</span>: &#123;</div><div class="line">        <span class="string">"GET /user/login"</span>: <span class="string">"UserController::login()"</span>,</div><div class="line">        ...	</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">after</span>: &#123;</div><div class="line">        <span class="string">"GET /user/:id"</span>: ErrorHandler.userNotFound,</div><div class="line">        ...</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;,</div><div class="line">...</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>Either list of routes may be given as array, instance of <code>Map</code> or regular object as described before. </p>
+<p>In compliance with CMFP either hook itself may be given as function to be invoked for returning the actual data, too. This enables dynamic creation of route configurations. Any such function might return promise to delay provision of route configuration, too. Finally it is also possible to provide a promise instead of function in the first place.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">policies: <span class="function"><span class="keyword">function</span>(<span class="params"> options </span>) </span>&#123;</div><div class="line">    <span class="keyword">let</span> api = <span class="keyword">this</span>;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="built_in">Promise</span>.resolve( &#123;</div><div class="line">        <span class="attr">before</span>: &#123;</div><div class="line">            <span class="string">"/user/login"</span>: <span class="string">"Session::create()"</span>,</div><div class="line">            ...</div><div class="line">        &#125;,</div><div class="line">        <span class="attr">after</span>: [ </div><div class="line">            &#123;</div><div class="line">                <span class="attr">url</span>: <span class="string">"/user/login"</span>,</div><div class="line">                <span class="attr">controller</span>: <span class="string">"Session"</span>,</div><div class="line">                <span class="attr">method</span>: <span class="string">"create"</span>,</div><div class="line">            &#125;,</div><div class="line">            ...</div><div class="line">        ]</div><div class="line">    &#125; );</div><div class="line">&#125;,</div><div class="line"><span class="attr">routes</span>: <span class="function"><span class="keyword">function</span>(<span class="params"> options </span>) </span>&#123;</div><div class="line">    <span class="keyword">let</span> api = <span class="keyword">this</span>;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Map</span>( [</div><div class="line">        [ <span class="string">"GET /user/login"</span>, <span class="string">"UserController::login()"</span> ],</div><div class="line">        ...	</div><div class="line">    ] );</div><div class="line">&#125;,</div><div class="line">...</div></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>Type of Routes</th>
+<th>Optionally Supported Phases</th>
+<th>Default Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>policies</code></td>
+<td><code>PolicyRoute</code></td>
+<td>before, after</td>
+<td>before</td>
+</tr>
+<tr>
+<td><code>routes</code></td>
+<td><code>TerminalRoute</code></td>
+<td>before, after</td>
+<td>before</td>
+</tr>
+<tr>
+<td><code>blueprints</code></td>
+<td><code>TerminalRoute</code></td>
+<td>-</td>
+<td>blueprint</td>
+</tr>
+</tbody>
+</table>
+<h4 id="Configuring-Custom-Routes-of-Application"><a href="#Configuring-Custom-Routes-of-Application" class="headerlink" title="Configuring Custom Routes of Application"></a>Configuring Custom Routes of Application</h4><p>The custom routes of current application must be provided in its configuration under <code>routes</code> and <code>policies</code> for configuring custom routes for <em>terminal routing</em> and <em>policy routing</em> respectively. </p>
+<p>Either list of route configurations may be given as array, instance of <code>Map</code> or regular object as described before.</p>
+<blockquote>
+<p>An application can’t configure custom blueprint routes by intention.</p>
+</blockquote>
+<h3 id="Routes-At-Runtime"><a href="#Routes-At-Runtime" class="headerlink" title="Routes At Runtime"></a>Routes At Runtime</h3><p>On compiling routes from configuration every definition of a route is converted into an instance of class <code>Route</code>. By default all <em>policy routes</em> are represented by instances of <code>PolicyRoute</code> and all <em>terminal routes</em> are represented by instances of <code>TerminalRoute</code>.</p>
+<blockquote>
+<p><strong>Note:</strong> Even though it is possible to put instances of <code>TerminalRoute</code> into lists included with policy routing and vice versa you are hereby strongly discouraged to use it as this is untested and might result in unintended behaviour of your application. </p>
+<p>Configurations should stick with <em>describing</em> routes instead of providing readily created instances of <code>Route</code>.</p>
+</blockquote>
+<h4 id="Prepared-for-Dispatching"><a href="#Prepared-for-Dispatching" class="headerlink" title="Prepared for Dispatching"></a>Prepared for Dispatching</h4><p>Hitchy’s core is preparing efficient request processing by first merging all groups of route configurations as described before into single sorted lists of configurations. According to explanations above this results in four lists of routes with two of them used on policy routing and the other two on terminal routing.</p>
+<p>All routes in every such list are then grouped by HTTP method each route is optionally bound to. This results in sublists of routes each bound to a single HTTP method. During this process all unbound routes are merged into all other lists bound to some HTTP method. This merging keeps track of original order of route processing.</p>
+<p>Eventually every sublist is processed in a similar way to group its route by longest static prefix with more generic routes distributed over any list related to a more specific prefix.</p>
+<blockquote>
+<p><strong>Note:</strong> Due to this grouping by prefix requests can be processed much faster if you prefer a higher number of routes with more specific prefix over a lesser number of routes with more generic prefix.</p>
+</blockquote>
+<h4 id="On-Dispatching"><a href="#On-Dispatching" class="headerlink" title="On Dispatching"></a>On Dispatching</h4><p>Due to this preparation the dispatching of routes becomes pretty performant. Any request is bound to some HTTP method and thus only the related sublist per phase must be processed. In every such sublist the prefix-bound group with the longest prefix matching current request is then used to check every included route eventually.</p>
+<p>As mentioned before this routing is passing 3 or 4 out of 4 phases given before:</p>
+<ol>
+<li>Any request is passing all <em>policy routes</em> in routing phase <strong>before</strong> covering path name of current request. These routes are considered to filter requests, extending request context for any route processed afterwards.</li>
+<li>Next all <em>terminal routes</em> in routing phase <strong>before</strong> are checked for the first one matching path name of current request. If matching route is found here the dispatching is skipping next step.</li>
+<li>If no <em>terminal route</em> was matching <strong>before</strong> all _terminal routes in routing phase <strong>after</strong> are checked for the first one matching path name of current request.<blockquote>
+<p>In theory these two steps regarding terminal routes might be considered single step, too.</p>
+</blockquote>
+</li>
+<li>After having checked all <em>terminal routes</em> the list of <em>policy routes</em> in routing phase <code>after</code> are checked for covering path name of current request. This happens no matter some matching terminal route has been found before or not. <blockquote>
+<p>Since response might be generated before responding in a <em>policy route</em> here isn’t good practice unless it’s used for providing error pages or similar. You should always check for having response to current request prior to generating response in a late policy route.</p>
+</blockquote>
+</li>
+</ol>
+</article></div><div id="left"><nav class="sub navigation"><ul><li class="item"><a href="runtime/bootstrap.html">Bootstrap</a></li><li class="item selected"><a href="runtime/routing.html">Routing</a></li></ul></nav></div><div id="right"></div></div></div><div id="south"><div class="center-block"><div class="copyright">&copy; 2017 <a href="http://cepharum.de" target="_blank">cepharum GmbH</a></div> - <nav class="footer"><ul><li class="item"><a href="imprint/">Imprint</a></li></ul></nav> - <div class="timestamp">Last Update: August 13, 2017 12:39 AM</div></div></div></div><script type="text/javascript" src="js/fx.js"></script></body></html>
