@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><base href="/"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link rel="stylesheet" href="design/index.css"><title>Discovering Extensions | Hitchy</title></head><body class="page"><div id="wrapper"><div id="north"><div class="navigation"><nav class="primary center-block"><ul><li class="item"><a href="">Home</a></li><li class="item"><a href="about/">About</a></li><li class="item"><a href="download/">Download</a></li><li class="item"><a href="concepts/">Concepts</a></li><li class="item"><a href="runtime/">At Runtime</a></li><li class="selected item"><a href="extensions/">Extensions</a></li></ul><div class="boilerplate"><div class="site-title">Hitchy</div><div class="site-subtitle">a Javascript-based web application framework</div></div></nav></div><div class="center-block"><h1>Discovering Extensions</h1></div></div><div id="main"><div class="columnizer"><div id="core"><article class="center-block"><h2 id="Finding-and-Loading-Extensions"><a href="#Finding-and-Loading-Extensions" class="headerlink" title="Finding and Loading Extensions"></a>Finding and Loading Extensions</h2><p>All extensions get loaded on Hitchy’s bootstrap. Thus all extensions are loaded prior to handling first request. Any folder in your project’s <strong>node_modules</strong> is tested for containing <strong>hitchy.json</strong> file and considered Hitchy extension then. This file must be located in root folder of extension and contains the extension’s <em>static meta information</em>.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><base href="/"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link rel="stylesheet" href="design/index.css"><title>Discovering Extensions | Hitchy</title></head><body class="page"><div id="wrapper"><div id="north"><div class="navigation"><nav class="primary center-block"><ul><li class="item"><a href="">Home</a></li><li class="item"><a href="about/">About</a></li><li class="item"><a href="download/">Download</a></li><li class="item"><a href="concepts/">Concepts</a></li><li class="item"><a href="runtime/">At Runtime</a></li><li class="selected item"><a href="extensions/">Extensions</a></li></ul><div class="boilerplate"><div class="site-title">Hitchy</div><div class="site-subtitle">a Javascript-based web application framework</div></div></nav></div><div class="center-block"><h1>Discovering Extensions</h1></div></div><div id="main"><div class="columnizer"><div id="core"><article class="center-block"><h2 id="Finding-and-Loading-Extensions"><a href="#Finding-and-Loading-Extensions" class="headerlink" title="Finding and Loading Extensions"></a>Finding and Loading Extensions</h2><p>All extensions get loaded on Hitchy’s bootstrap. Thus all extensions are loaded prior to handling first request. Any folder in your project’s <strong>node_modules</strong> is tested for containing <strong><a href="concepts/the_meta_file.html">hitchy.json</a></strong> file and considered Hitchy extension then. This file must be located in root folder of extension and contains the extension’s <em>static meta information</em>.</p>
 <p>Hitchy is loading any extension by “requiring” its folder. Thus you must provide a main script named <strong>index.js</strong> in root folder of your extension or name any other main script in your extension’s <strong>package.json</strong> file.</p>
 <blockquote>
 <p>Every extension must provide main script file to be loaded. This main script may be empty by means of absolutely blank text file.</p>
@@ -17,13 +17,13 @@
 <li>Hitchy’s core API</li>
 <li>runtime options</li>
 <li>names of all basically available extensions</li>
-<li>static meta information (as defined in extension’s <strong>hitchy.json</strong> file)</li>
+<li>static meta information (as defined in extension’s <strong><a href="concepts/the_meta_file.html">hitchy.json</a></strong> file)</li>
 </ul>
 </li>
 <li><strong>processing order:</strong> arbitrary</li>
 <li><strong>supported types:</strong><ul>
 <li>object</li>
-<li>common module pattern</li>
+<li><a href="concepts/common_patterns.html">common module pattern</a></li>
 </ul>
 </li>
 </ul>
@@ -32,7 +32,7 @@
 <p>Any extension may omit some or even all of the properties listed here. This results in certain default behaviour.</p>
 </blockquote>
 <p>Here comes a list of API properties obeyed by Hitchy bootstrap process.</p>
-<h3 id="meta"><a href="#meta" class="headerlink" title="$meta"></a><code>$meta</code></h3><p>This property is processed on loading extension. It is merged with meta information read from <strong>hitchy.json</strong> file before.</p>
+<h3 id="meta"><a href="#meta" class="headerlink" title="$meta"></a><code>$meta</code></h3><p>This property is processed on loading extension. It is merged with meta information read from <strong><a href="concepts/the_meta_file.html">hitchy.json</a></strong> file before.</p>
 <blockquote>
 <p>$meta is always an object. It can’t be function complying with common module function pattern. This doesn’t hurt as the API itself may be provided by function on extension complying with common module pattern.</p>
 </blockquote>
@@ -55,7 +55,7 @@
 <p>There are three kinds of roles:</p>
 <ol>
 <li>Every extension is assigned implicit role on missing any explicit declaration. This implicit role is equivalent to the extension’s name which in turn is just the basename of folder containing it.</li>
-<li>In <strong>hitchy.json</strong> file role of extension may be declared explicitly as property <strong>role</strong>. </li>
+<li>In <strong><a href="concepts/the_meta_file.html">hitchy.json</a></strong> file role of extension may be declared explicitly as property <strong>role</strong>. </li>
 <li>The extension may provide dynamic meta information including property <strong>role</strong> as well.</li>
 </ol>
 <p>While the two former are called <em>static role</em> of extension, the latter is called its <em>dynamic role</em>. On processing roles of extensions dynamic role takes precedence over static ones, explicitly declared one over implicit one.</p>
@@ -87,8 +87,8 @@
 </li>
 <li><strong>processing order:</strong> dependency-based</li>
 <li><strong>supported types:</strong> <ul>
-<li>common module function pattern</li>
+<li><a href="concepts/common_patterns.html#Common-Module-Function-Pattern-CMFP">common module function pattern</a></li>
 </ul>
 </li>
 </ul>
-</article></div><div id="left"><nav class="sub navigation"><ul><li class="item"><a href="extensions/phases.html">Phases</a></li><li class="item selected"><a href="extensions/discovery.html">Discovery</a></li><li class="item"><a href="extensions/configuration.html">Configuration</a></li><li class="item"><a href="extensions/exposure.html">Exposure</a></li><li class="item"><a href="extensions/initialization.html">Initialization</a></li><li class="item"><a href="extensions/routing.html">Routing</a></li><li class="item"><a href="extensions/shutdown.html">Shutdown</a></li></ul></nav></div><div id="right"></div></div></div><div id="south"><div class="center-block"><div class="copyright">&copy; 2017 <a href="http://cepharum.de" target="_blank">cepharum GmbH</a></div> - <nav class="footer"><ul><li class="item"><a href="imprint/">Imprint</a></li></ul></nav> - <div class="timestamp">Last Update: April 24, 2017 4:50 PM</div></div></div></div><script type="text/javascript" src="js/fx.js"></script></body></html>
+</article></div><div id="left"><nav class="sub navigation"><ul><li class="item"><a href="extensions/phases.html">Phases</a></li><li class="item selected"><a href="extensions/discovery.html">Discovery</a></li><li class="item"><a href="extensions/configuration.html">Configuration</a></li><li class="item"><a href="extensions/exposure.html">Exposure</a></li><li class="item"><a href="extensions/initialization.html">Initialization</a></li><li class="item"><a href="extensions/routing.html">Routing</a></li><li class="item"><a href="extensions/shutdown.html">Shutdown</a></li></ul></nav></div><div id="right"></div></div></div><div id="south"><div class="center-block"><div class="copyright">&copy; 2018 <a href="http://cepharum.de" target="_blank">cepharum GmbH</a></div> - <nav class="footer"><ul><li class="item"><a href="imprint/">Imprint</a></li></ul></nav> - <div class="timestamp">Last Update: March 11, 2018 12:07 PM</div></div></div></div><script type="text/javascript" src="js/fx.js"></script></body></html>
