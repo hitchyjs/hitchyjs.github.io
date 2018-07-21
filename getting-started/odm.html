@@ -28,8 +28,27 @@
 </li>
 <li><p><strong>Search the model:</strong> Open URL <a href="http://localhost:3000/api/person/find/firstName/eq/Jane" target="_blank" rel="noopener">http://localhost:3000/api/person/find/firstName/eq/Jane</a>. This time you get a list consisting of the second instance created right before due to matching search criteria <code>firstName</code> <code>eq</code>uals <code>Jane</code>:<br><img src="/images/hitchy-odm-find.png" alt=""></p>
 </li>
-<li><p><strong>Limit the results:</strong> Extend URL used to query model before or the URL used initially to list all records by parameters <code>offset</code> and/or <code>limit</code> skip some listed records or limit number of resulting records, e.g. <a href="http://localhost:3000/api/person?offset=1" target="_blank" rel="noopener">http://localhost:3000/api/person?offset=1</a> or <a href="http://localhost:3000/api/person/find/firstName/eq/Jane?limit=1" target="_blank" rel="noopener">http://localhost:3000/api/person/find/firstName/eq/Jane?limit=1</a>.</p>
+<li><p><strong>Limit the results:</strong> Extend URL used to query model before or the URL used initially to list all records by parameters <code>offset</code> and/or <code>limit</code> skip some listed records or limit number of resulting records, e.g. </p>
+<ul>
+<li><p><a href="http://localhost:3000/api/person?offset=1" target="_blank" rel="noopener">http://localhost:3000/api/person?offset=1</a> or</p>
+</li>
+<li><p><a href="http://localhost:3000/api/person/find/firstName/eq/Jane?limit=1" target="_blank" rel="noopener">http://localhost:3000/api/person/find/firstName/eq/Jane?limit=1</a>.</p>
+</li>
+</ul>
 </li>
 </ol>
 <p>See the full list of available URLs per model in <a href="https://www.npmjs.com/package/hitchy-plugin-odem-rest" target="_blank" rel="noopener">documentation of hitchy-plugin-odem-rest</a>.</p>
-</article></div><div id="left"><nav class="sub navigation"><ul><li class="item"><a href="getting-started/installation.html">Installation</a></li><li class="item"><a href="getting-started/routes.html">Routes</a></li><li class="item selected"><a href="getting-started/odm.html">Odm</a></li></ul></nav></div><div id="right"></div></div></div><div id="south"><div class="center-block"><div class="copyright">&copy; 2018 <a href="http://cepharum.de" target="_blank">cepharum GmbH</a></div> - <nav class="footer"><ul><li class="item"><a href="imprint/">Imprint</a></li></ul></nav> - <div class="timestamp">Last Update: July 21, 2018 6:07 PM</div></div></div></div><script type="text/javascript" src="js/fx.js"></script></body></html>
+<h1 id="Persisting-Your-Data"><a href="#Persisting-Your-Data" class="headerlink" title="Persisting Your Data"></a>Persisting Your Data</h1><p>Until now all data was backed using a default adapter which happens to use computer’s volatile memory thus loosing all data on restarting Hitchy. This is great for testing but it won’t help to get become production-ready. You can fix this by configuring different default adapter to be used.</p>
+<p><strong>hitchy-odem</strong> includes <code>FileAdapter</code> storing all data in a folder of your file system. This adapter is anything but performant and definitely not suitable for large-scale applications. But it’s sufficient to extend your next web application to a production-ready first prototype.</p>
+<blockquote>
+<p>Keep waiting for an adapter connecting with a LevelDB backend or similar.</p>
+</blockquote>
+<ol>
+<li><p>Create folder <strong>server/data</strong> to contain your data.</p>
+</li>
+<li><p>Create file <strong>server/config/database.js</strong> and put this content:  </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Path = <span class="built_in">require</span>( <span class="string">"path"</span> );</span><br><span class="line"><span class="keyword">const</span> &#123; FileAdapter &#125; = <span class="built_in">require</span>( <span class="string">"hitchy-odem"</span> );</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">	database: &#123;</span><br><span class="line">		<span class="keyword">default</span>: <span class="keyword">new</span> FileAdapter( &#123;</span><br><span class="line">			dataSource: Path.resolve( __dirname, <span class="string">"../data"</span> )</span><br><span class="line">		&#125; ),</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>This file is adjusting configuration option <strong>config.database.default</strong> which is read by <strong>hitchy-odem</strong> on selecting default adapter to use with every model created. On next restart Hitchy is going to create all data model instances in created folder.</p>
+</article></div><div id="left"><nav class="sub navigation"><ul><li class="item"><a href="getting-started/installation.html">Installation</a></li><li class="item"><a href="getting-started/routes.html">Routes</a></li><li class="item selected"><a href="getting-started/odm.html">Odm</a></li></ul></nav></div><div id="right"></div></div></div><div id="south"><div class="center-block"><div class="copyright">&copy; 2018 <a href="http://cepharum.de" target="_blank">cepharum GmbH</a></div> - <nav class="footer"><ul><li class="item"><a href="imprint/">Imprint</a></li></ul></nav> - <div class="timestamp">Last Update: July 22, 2018 1:24 AM</div></div></div></div><script type="text/javascript" src="js/fx.js"></script></body></html>
