@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><base href="/"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link rel="stylesheet" href="design/index.css"><title>Creating Hitchy Project ... | Hitchy</title></head><body class="page"><div id="wrapper"><div id="north"><div class="navigation"><nav class="primary center-block"><ul><li class="item"><a href="">Home</a></li><li class="item"><a href="about/">About</a></li><li class="item"><a href="download/">Download</a></li><li class="selected item"><a href="getting-started/">Getting Started</a></li><li class="item"><a href="concepts/">Concepts</a></li><li class="item"><a href="runtime/">At Runtime</a></li><li class="item"><a href="extensions/">Extensions</a></li></ul><div class="boilerplate"><div class="site-title">Hitchy</div><div class="site-subtitle">a Javascript-based web application framework</div></div></nav></div><div class="center-block"><h1>Creating Hitchy Project ...</h1></div></div><div id="main"><div class="columnizer"><div id="core"><article class="center-block"><h1 id="…-From-Scratch"><a href="#…-From-Scratch" class="headerlink" title="… From Scratch"></a>… From Scratch</h1><p>If you want to develop a web application with Hitchy you could start creating a project from scratch. </p>
+<ol>
+<li><p>Using your favourite CLI create folder to contain your new project:<br><code>mkdir myproject</code></p>
+</li>
+<li><p>Of course, you’ll need to enter it next:<br><code>cd myproject</code></p>
+</li>
+<li><p>Create new package.json file for managing your project and its dependencies:<br><code>npm init</code><br>Answer all questions as desired.</p>
+</li>
+<li><p>Install Hitchy as a dependency:<br><code>npm i -S hitchy</code></p>
+</li>
+<li><p>Mark your folder to actually contain some Hitchy application. Put <code>{}</code> in a file named <strong>hitchy.json</strong> using your favourite text editor. This file must be located next to <strong>package.json</strong> file created before.</p>
+</li>
+<li><p>Open your <strong>package.json</strong> file created before and add script in section named <code>scripts</code>. If that section is missing you might need to add it as well, of course:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&quot;scripts&quot;: &#123;</span><br><span class="line">  &quot;server&quot;: &quot;hitchy start&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<ol start="6">
+<li>Start your Hitchy service:<br><code>npm run server</code></li>
+</ol>
+<h1 id="…-As-Part-Of-Some-Existing-Project"><a href="#…-As-Part-Of-Some-Existing-Project" class="headerlink" title="… As Part Of Some Existing Project"></a>… As Part Of Some Existing Project</h1><p>Well, Hitchy wouldn’t be called hitchy, if it’s not suitable for hitching onto something existing. Here comes one of two ways you should consider hitchy with regards to this framework.</p>
+<blockquote>
+<p>The second way is using Hitchy as a middleware injected into an existing project relying on ExpressJS. However, that scenario isn’t covered in this tutorial, yet. You might want to check out tests included with Hitchy for more information.</p>
+</blockquote>
+<p>Lets consider you want to start a web application using another super great framework: <a href="https://vuejs.org/" target="_blank" rel="noopener">VueJS</a>. You might like to use one their templates to get started:</p>
+<ol>
+<li><p>Using your favourite CLI install <a href="https://www.npmjs.com/package/vue-cli" target="_blank" rel="noopener">vue-cli</a> globally:<br><code>npm i -g vue-cli</code></p>
+</li>
+<li><p>Create new project from template using global script <strong>vue</strong> available by now:<br><code>vue init webpack myproject</code><br>Of course, you might choose any other template. Just answer all questions as desired. This will create a new subfolder named <strong>myproject</strong> in your current working directory.</p>
+</li>
+<li><p>Enter that folder now:<br><code>cd myproject</code></p>
+</li>
+<li><p><em>Adjust this VueJS application to your needs. Just consider some time might have passed since you started the project before and you you think it’s time to add Hitchy for backend stuff.</em></p>
+</li>
+<li><p>With your CLI (still) seeing your project’s folder <strong>myproject</strong> as its current working directory create a new subfolder named <strong>server</strong>. Of course, you may name it as you prefer. But in steps below this folder is named <strong>server</strong>.</p>
+</li>
+<li><p>Install hitchy as another dependency of your basic project:<br><code>npm i -S hitchy</code></p>
+</li>
+<li><p>Put a file named <strong>hitchy.json</strong> into created subfolder <strong>server</strong> with content <code>{}</code>. This will properly mark that subfolder to contain a Hitchy-based (sub-)project.</p>
+</li>
+<li><p>Adjust the existing <strong>package.json</strong> file of your VueJS project adding another script in section <code>scripts</code> (which is existing due to VueJS already):  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&quot;scripts&quot;: &#123;</span><br><span class="line">  ...,</span><br><span class="line">  &quot;server&quot;: &quot;hitchy start --project server --extensions .&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>This extended invocation of Hitchy instructs its CLI to consider actual project residing in subfolder <strong>server</strong> while extensions to be added soon will be available in <strong>node_modules</strong> folder of containing VueJS application itself thus referring to the root directory of VueJS project.</p>
+</li>
+<li><p>Start your Hitchy service now:<br><code>npm run server</code></p>
+</li>
+</ol>
+<h1 id="See-Hitchy-In-First-Action"><a href="#See-Hitchy-In-First-Action" class="headerlink" title="See Hitchy In First Action"></a>See Hitchy In First Action</h1><p>After starting hitchy you should read some output like this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">starting application using internal server ...</span><br><span class="line"></span><br><span class="line">Service is running. Open </span><br><span class="line"></span><br><span class="line">   http://127.0.0.1:3000 </span><br><span class="line"></span><br><span class="line">in your favourite browser now!</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Hitchy is ready to serve requests, now.</span><br></pre></td></tr></table></figure>
+<p>Of course you might follow provided instruction and open URL <a href="http://127.0.0.1:3000">http://127.0.0.1:3000</a> in your favourite web browser. This should result in a view like this one:</p>
+<p><img src="/images/hitchy-first-start-browser-error.png" alt=""></p>
+<p>That view is actually provided by Hitchy’s core which is solely up and running by now. This core is ready to handle additional routing to be set up soon. But for now it’s answering every request with this screen indicating that the required view doesn’t (yet) exist.</p>
+<p>If you happen to be really fast or if there are some extensions to be bootstrapped later you might happen to see a different view presented by Hitchy’s core:</p>
+<p><img src="/images/hitchy-splash.png" alt=""></p>
+<p>Hitchy is pretty fast on opening socket listening for incoming connections. But it might need some time to set things up. This view is presented as some kind of “splash screen” indicating that Hitchy isn’t ready to serve requests, yet.</p>
+<h1 id="Ready-for-some-actual-interaction"><a href="#Ready-for-some-actual-interaction" class="headerlink" title="Ready for some actual interaction?"></a>Ready for some actual interaction?</h1><p>See the <a href="/getting-started/routes.html">definition of custom routes</a>, next …</p>
+</article></div><div id="left"><nav class="sub navigation"><ul><li class="item selected"><a href="getting-started/installation.html">Installation</a></li><li class="item"><a href="getting-started/routes.html">Routes</a></li><li class="item"><a href="getting-started/odm.html">Odm</a></li></ul></nav></div><div id="right"></div></div></div><div id="south"><div class="center-block"><div class="copyright">&copy; 2018 <a href="http://cepharum.de" target="_blank">cepharum GmbH</a></div> - <nav class="footer"><ul><li class="item"><a href="imprint/">Imprint</a></li></ul></nav> - <div class="timestamp">Last Update: July 21, 2018 6:03 PM</div></div></div></div><script type="text/javascript" src="js/fx.js"></script></body></html>

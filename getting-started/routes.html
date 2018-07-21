@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><base href="/"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link rel="stylesheet" href="design/index.css"><title>Adding Custom Routes | Hitchy</title></head><body class="page"><div id="wrapper"><div id="north"><div class="navigation"><nav class="primary center-block"><ul><li class="item"><a href="">Home</a></li><li class="item"><a href="about/">About</a></li><li class="item"><a href="download/">Download</a></li><li class="selected item"><a href="getting-started/">Getting Started</a></li><li class="item"><a href="concepts/">Concepts</a></li><li class="item"><a href="runtime/">At Runtime</a></li><li class="item"><a href="extensions/">Extensions</a></li></ul><div class="boilerplate"><div class="site-title">Hitchy</div><div class="site-subtitle">a Javascript-based web application framework</div></div></nav></div><div class="center-block"><h1>Adding Custom Routes</h1></div></div><div id="main"><div class="columnizer"><div id="core"><article class="center-block"><h1 id="About-Routes"><a href="#About-Routes" class="headerlink" title="About Routes"></a>About Routes</h1><p>Hitchy’s core comes with a very powerful routing engine which might serve well in many different situations. Let’s start simple nevertheless …</p>
+<p>Hitchy is suitable for matching some request handling code to one or more request patterns e.g. used by some browser or your VueJS-based single-page application. A route is actually mapping from a request pattern into the description of a function to be invoked for handling matching requests or into that function itself. All routes are tested on a request’s path name, only.</p>
+<p>Hitchy supports two kinds of routes: </p>
+<ul>
+<li><p>Terminal routes are expected to create response to be sent back to client. Any handler matching some terminal route is invoked and expected to end response. You can’t have multiple handlers invoked per terminal route.</p>
+</li>
+<li><p>Policy routes provide some sort of opposite. A single request might pass several matching policy routes and either matching handler may adjust or end the response. Policy routes may be processed before or after terminal routes with the latter designed to e.g. clean up resources used by terminal routes or similar.</p>
+</li>
+</ul>
+<h1 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h1><p>In your project’s configuration (and here we talk about that Hitchy project which might be located inside your other project, only) you may declare routes very easily.</p>
+<p>The project’s configuration is read from files in subfolder <strong>config</strong> of your Hitchy-based project. So create that folder, put a new file <strong>server/routes.js</strong> in it with some code like this:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">	routes: &#123;</span><br><span class="line">		<span class="string">"/"</span>: <span class="function"><span class="keyword">function</span>(<span class="params"> req, res </span>) </span>&#123;</span><br><span class="line">			res.send( <span class="string">"Hello World!"</span> );</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Actually, the name of the file doesn’t matter. For sake of usability you should call it <strong>routes.js</strong> as it is exposing a section of resulting configuration called <code>routes</code>.</p>
+</blockquote>
+<p>Restart your hitchy service: press Ctrl+C if it’s running in a console and restart it just like given before. Reload your browser and see this:</p>
+<p><img src="/images/hitchy-hello-world.png" alt=""></p>
+<p>This very simple example is instructing Hitchy to invoke provided request handler as soon as there is a request for URL path name <code>/</code> which is the same as requests providing no path name at all.</p>
+<p>This example is pretty simple. And you might want to play around with the route’s source (which is the <code>&quot;/&quot;</code> in example). Try different path names and see how Hitchy is responding.</p>
+<blockquote>
+<p>Don’t forget: any change to your Hitchy-based project requires you to restart the service. </p>
+</blockquote>
+<h2 id="Method-Matching"><a href="#Method-Matching" class="headerlink" title="Method Matching"></a>Method Matching</h2><p>The source <code>/</code> or any other path name is matching requests of browser accordingly. That’s okay since browsers request services using GET method by default. As soon as you are querying the service using any other HTTP method such as POST, PUT or similar this route won’t be matching anymore.</p>
+<p>In fact any such source consists of two parts separated by space with the first one being optional:</p>
+<ol>
+<li><p>the HTTP method (defaults to GET as mentioned before)</p>
+</li>
+<li><p>the path name of URL</p>
+</li>
+</ol>
+<p>Any route has to match both parts to be processed. Using special HTTP method <code>ALL</code> or <code>*</code> a route is matching any HTTP method.</p>
+<blockquote>
+<p>This applies to terminal routes as well as policy routes.</p>
+</blockquote>
+<h2 id="Parameter-Matching"><a href="#Parameter-Matching" class="headerlink" title="Parameter Matching"></a>Parameter Matching</h2><p>Hitchy’s matching of request pathes relies on <a href="https://www.npmjs.com/package/path-to-regexp" target="_blank" rel="noopener">path-to-regexp</a>. This supports parameter matching to be available and request handlers via <code>req.params</code>.</p>
+<p>Try declaring a terminal route like this:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">routes: &#123;</span><br><span class="line">	<span class="string">"/greet/:name"</span>: <span class="function"><span class="keyword">function</span>(<span class="params"> req, res </span>) </span>&#123;</span><br><span class="line">		res.send( <span class="string">"Hello "</span> + req.params.name + <span class="string">"!"</span> );</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>Querying <a href="http://localhost:3000/greet" target="_blank" rel="noopener">http://localhost:3000/greet</a> will result in Hitchy’s error view due to request missing required parameter in second segment of URL path. Querying <a href="http://localhost:3000/greet/john" target="_blank" rel="noopener">http://localhost:3000/greet/john</a> result in this view, however:</p>
+<p><img src="/images/hitchy-greeting-john.png" alt=""> </p>
+<h1 id="Request-Handlers"><a href="#Request-Handlers" class="headerlink" title="Request Handlers"></a>Request Handlers</h1><p>The request handler works quite similar to ExpressJS. <em>Terminal</em> handlers like the one given before are invoked with two arguments <code>req</code> (for <em>request</em>) and <code>res</code> (for <em>response</em>). The first is describing received request. The second is available to create a response sent back to the client (a.k.a. browser or your VueJS application or …). </p>
+<ul>
+<li><p>Either parameter is basically identical to those provided by HTTP server implementation of NodeJS and so you should read those docs for <a href="https://nodejs.org/dist/latest/docs/api/http.html#http_class_http_incomingmessage" target="_blank" rel="noopener">req</a> and <a href="https://nodejs.org/dist/latest/docs/api/http.html#http_class_http_serverresponse" target="_blank" rel="noopener">res</a> if you aren’t familiar with them.</p>
+</li>
+<li><p>When your project is hitched onto some existing ExpressJS framework all extensions to either argument as provided by ExpressJS for <a href="https://expressjs.com/en/4x/api.html#req" target="_blank" rel="noopener">req</a> and <a href="https://expressjs.com/en/4x/api.html#res" target="_blank" rel="noopener">res</a> are available here as well.</p>
+</li>
+<li><p>If you have started a Hitchy-based project without ExpressJS - as described in this tutorial - there are some extensions to the basic functionality provided by NodeJS. Those extensions are inspired by ExpressJS and try to mock signatures used by ExpressJS as good as possible.</p>
+<ul>
+<li><p><code>res.send()</code> is sending some provided data always implicitly ending current response. The format indicated in response header depends on type of data provided here:</p>
+<ul>
+<li><p>Strings are sent as <code>tex/plain</code>.</p>
+</li>
+<li><p>Objects are sent as <code>application/json</code>.</p>
+</li>
+<li><p>Instances of <code>Buffer</code> are sent as <code>application/octet-stream</code>.</p>
+</li>
+<li><p>Any other type of data is ending response without actually sending some data but marking response to be <code>application/octet-stream</code>.</p>
+</li>
+</ul>
+</li>
+<li><p><code>res.json()</code> is sending some provided object formatted as JSON implicitly ending current response.</p>
+</li>
+<li><p><code>res.status()</code> is adjusting HTTP status code send with response without ending it implicitly.</p>
+</li>
+<li><p><code>res.set()</code> is available to set one or more variables of response header. You might provide one variable with name and value in separate arguments or an object describing several header variables in sole argument.</p>
+</li>
+<li><p><code>res.type()</code> adjusts content type of responsing either by providing MIME identifier such as <code>image/jpeg</code> or <code>text/html</code> or by using some supported shortcut such as <code>text</code>, <code>xml</code>, <code>png</code> etc.</p>
+</li>
+<li><p><code>res.format()</code> takes an object mapping MIME identifier of encoding accepted by client into functions invoked to provide a response matching either format. Special property <code>default</code> might be used to provide a responder for all formats not listed explicitly.</p>
+</li>
+<li><p><code>res.redirect()</code> responds with a redirection to a different URL given as argument. It is implicitly ending response.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Policy-Handlers"><a href="#Policy-Handlers" class="headerlink" title="Policy Handlers"></a>Policy Handlers</h2><p>While terminal routes are handled by terminal handlers policy routes are handled by policy handlers. These work with a slightly different signature by taking three arguments <code>req</code>, <code>res</code> and <code>next</code>. The first two are equivalent to those provided to terminal handlers. But the last one is a callback that needs to be invoked as soon as the particular handler has finished processing request.</p>
+<p>This is pretty equivalent to ExpressJS. But since we love to work with promises you may return a promise from your policy handler, too, to mark the time when its done.</p>
+<blockquote>
+<p>Actually you may return promise from a terminal handler, too, e.g. when it’s creating complex response that might take some time. Remember that there might be some policy handlers invoked after your terminal handler has finished responding. By returning promise from a terminal handler such late policy handlers will be deferred and thus won’t interfere with the processing of your terminal handler.</p>
+</blockquote>
+<h1 id="Policy-Routes-in-Configuration"><a href="#Policy-Routes-in-Configuration" class="headerlink" title="Policy Routes in Configuration"></a>Policy Routes in Configuration</h1><p>Policy routes may be declared similar to terminal routes declared in example above. Create a file <strong>server/config/policies.js</strong>:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">policies: &#123;</span><br><span class="line">	<span class="string">"/throttled"</span>: <span class="function"><span class="keyword">function</span>(<span class="params"> req, res </span>) </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>( <span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">			setTimeout( resolve, <span class="number">5000</span> );</span><br><span class="line">		&#125; );</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>After restarting Hitchy opening URL <a href="http://localhost:3000/throttled" target="_blank" rel="noopener">http://localhost:3000/throttled</a> in your browser will show the error on missing request page as before, but this time it will take about 5s to appear.</p>
+<h2 id="Prefix-Based-vs-Exact-Matching"><a href="#Prefix-Based-vs-Exact-Matching" class="headerlink" title="Prefix-Based vs. Exact Matching"></a>Prefix-Based vs. Exact Matching</h2><p>Next add another route to declaration in <strong>server/config/routes.js</strong>:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">routes: &#123;</span><br><span class="line">	...,</span><br><span class="line">	<span class="string">"/throttled/response"</span>: <span class="function"><span class="keyword">function</span>(<span class="params"> req, res </span>) </span>&#123;</span><br><span class="line">		res.send( <span class="string">"Here I am!"</span> );</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>This terminal route will handle requests for URL path name <code>/throttled/response</code>. After restarting Hitchy and opening that URL in browser the related terminal handler responds with <code>Here I am!</code>. But this response is still deferred by about 5s. That is because policy routes always apply to all requests matching some prefix whereas terminal routes are required to match exactly. That’s why</p>
+<ul>
+<li><p>requesting <code>/throttled</code> is responding with Hitchy’s error view after 5s,</p>
+</li>
+<li><p>requesting <code>/throttled/response</code> is responding with <code>Here I am!</code> after 5s,</p>
+</li>
+<li><p>requesting <code>/throttled/response/extra</code> is responding with Hitchy’s error view after 5s again and</p>
+</li>
+<li><p>requesting <code>/response</code> or <code>/response/extra</code> are responding with Hitchy’s error view instantly.</p>
+</li>
+</ul>
+<h2 id="Early-vs-Late-Policy-Routes"><a href="#Early-vs-Late-Policy-Routes" class="headerlink" title="Early vs. Late Policy Routes"></a>Early vs. Late Policy Routes</h2><p>As mentioned before policy routes may be processed before or after any matching terminal route. Early policy routes are processed before terminal routes and might filter request parameters, inject authentication and session management, prepare required resources etc. Late policy routes are less common and considered to release resources used by any matching terminal route or prepared by some early policy route. In addition you could use late policy routes for logging statistical information on time spent with responding to some request.</p>
+<p>Previous definition of a policy route was considered early policy route implicitly. By tweaking provided configuration you could declare early and/or late policy routes explicitly:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">policies: &#123;</span><br><span class="line">	before: &#123;</span><br><span class="line">		<span class="string">"/throttled"</span>: <span class="function"><span class="keyword">function</span>(<span class="params"> req, res </span>) </span>&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>( <span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">				setTimeout( resolve, <span class="number">5000</span> );</span><br><span class="line">			&#125; );</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>This is explicitly declaring an early policy route to be obeyed prior to processing any terminal route. Accordingly the following example is declaring the same policy route as late policy route:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">policies: &#123;</span><br><span class="line">	after: &#123;</span><br><span class="line">		<span class="string">"/throttled"</span>: <span class="function"><span class="keyword">function</span>(<span class="params"> req, res </span>) </span>&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>( <span class="function"><span class="params">resolve</span> =&gt;</span> &#123;</span><br><span class="line">				setTimeout( resolve, <span class="number">5000</span> );</span><br><span class="line">			&#125; );</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>Try this one! Restart Hitchy and open URL <a href="http://localhost:3000/throttled/response" target="_blank" rel="noopener">http://localhost:3000/throttled/response</a> again. This time the service is responding instantly due to 5s delay is applied <em>after</em> response has been sent.</p>
+<h1 id="Controllers-vs-Policies"><a href="#Controllers-vs-Policies" class="headerlink" title="Controllers vs. Policies"></a>Controllers vs. Policies</h1><p>tbd.</p>
+<h1 id="What-About-Providing-Some-Data-Model"><a href="#What-About-Providing-Some-Data-Model" class="headerlink" title="What About Providing Some Data Model?"></a>What About Providing Some Data Model?</h1><p>Head over to the next chapter showing how to <a href="/getting-started/odm.html">add some data model</a>!</p>
+</article></div><div id="left"><nav class="sub navigation"><ul><li class="item"><a href="getting-started/installation.html">Installation</a></li><li class="item selected"><a href="getting-started/routes.html">Routes</a></li><li class="item"><a href="getting-started/odm.html">Odm</a></li></ul></nav></div><div id="right"></div></div></div><div id="south"><div class="center-block"><div class="copyright">&copy; 2018 <a href="http://cepharum.de" target="_blank">cepharum GmbH</a></div> - <nav class="footer"><ul><li class="item"><a href="imprint/">Imprint</a></li></ul></nav> - <div class="timestamp">Last Update: July 21, 2018 6:09 PM</div></div></div></div><script type="text/javascript" src="js/fx.js"></script></body></html>
